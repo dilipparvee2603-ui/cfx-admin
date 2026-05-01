@@ -197,6 +197,14 @@
         .form-group { margin-bottom: 20px; }
         .form-group label { display: block; font-size: 11px; font-weight: 800; color: var(--text-dim); margin-bottom: 8px; text-transform: uppercase; }
         .form-group input { width: 100%; background: var(--bg); border: 1px solid var(--border); padding: 12px; border-radius: 10px; color: #fff; outline: none; }
+
+        .loading-container { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 100px 20px; gap: 20px; }
+        .loading-text { font-family: var(--font-mono); font-size: 11px; font-weight: 800; color: var(--accent); letter-spacing: 4px; text-transform: uppercase; animation: pulse 1.5s infinite; }
+        .loading-bar { width: 120px; height: 2px; background: var(--border); position: relative; overflow: hidden; border-radius: 2px; }
+        .loading-bar::after { content: ''; position: absolute; left: -100%; width: 100%; height: 100%; background: var(--accent); animation: slide 1.5s infinite; box-shadow: 0 0 10px var(--accent); }
+
+        @keyframes pulse { 0%, 100% { opacity: 0.4; } 50% { opacity: 1; } }
+        @keyframes slide { 0% { left: -100%; } 100% { left: 100%; } }
     </style>
 </head>
 <body>
@@ -285,7 +293,10 @@
                 <div class="table-panel">
                     <div class="table-responsive">
                         <div id="table-container">
-                            <div class="loading">INITIALIZING COMMAND DECK...</div>
+                            <div class="loading-container">
+                                <div class="loading-text">INITIALIZING DECK</div>
+                                <div class="loading-bar"></div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -362,7 +373,7 @@
             if (currentView === 'vault') return await fetchVault();
             if (currentView === 'broadcast') return renderBroadcastView();
 
-            if (!allLicenses.length || force) container.innerHTML = '<div class="loading">SYNCING WITH CLOUD...</div>';
+            if (!allLicenses.length || force) container.innerHTML = `<div class="loading-container"><div class="loading-text">SYNCING CLOUD</div><div class="loading-bar"></div></div>`;
             
             try {
                 const [lRes, tRes] = await Promise.all([
