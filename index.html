@@ -324,6 +324,11 @@
         <header>
             <div class="header-title" id="view-title">WINDOWS WORKSTATION LICENSES</div>
             <div class="header-actions">
+                <select id="status-filter" class="search-box" style="width: 150px; background: var(--glass); border: 1px solid var(--border); padding: 10px; border-radius: 12px; font-weight: 700;" onchange="filterData()">
+                    <option value="all">ALL STATUS</option>
+                    <option value="activated">ACTIVATED</option>
+                    <option value="not-activated">AVAILABLE</option>
+                </select>
                 <div class="search-container">
                     <input type="text" class="search-box" id="search" placeholder="Search keys or users..." oninput="filterData()">
                 </div>
@@ -417,6 +422,13 @@
                 document.getElementById('sidebar').classList.remove('active');
             }
 
+            const filter = document.getElementById('status-filter');
+            if (view === 'windows' || view === 'android') {
+                filter.style.display = 'block';
+            } else {
+                filter.style.display = 'none';
+            }
+
             document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
             document.getElementById(`nav-${view}`).classList.add('active');
 
@@ -461,6 +473,7 @@
 
         function renderTable() {
             const query = document.getElementById('search').value.toLowerCase();
+            const statusFilter = document.getElementById('status-filter').value;
             let html = `<table><thead><tr>`;
             
             if(currentView === 'windows' || currentView === 'android') {
@@ -468,6 +481,13 @@
                 let filtered = [...allLicenses].sort((a, b) => b.id.length - a.id.length);
                 if(currentView === 'windows') filtered = filtered.filter(l => l.id.length > 10);
                 if(currentView === 'android') filtered = filtered.filter(l => l.id.length <= 10);
+
+                // Apply Status Filter
+                if (statusFilter === 'activated') {
+                    filtered = filtered.filter(l => l.email || l.userEmail || l.status === 'ACTIVE');
+                } else if (statusFilter === 'not-activated') {
+                    filtered = filtered.filter(l => !(l.email || l.userEmail || l.status === 'ACTIVE'));
+                }
 
                 filtered = filtered.filter(l => 
                     l.id.toLowerCase().includes(query) || 
