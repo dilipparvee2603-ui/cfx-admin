@@ -744,19 +744,31 @@
             if(status) { status.innerText = "SYNCING TO CLOUD..."; status.style.color = "var(--blue)"; }
 
             try {
-                // Strip internal IDs before saving to keep GitHub clean
-                const dataToSave = vaultSnippets.map(({id, ...rest}) => rest);
                 const res = await fetch(`https://api.github.com/gists/${vaultGistId}`, {
                     method: 'PATCH',
-                    headers: { 'Authorization': `token ${token}` },
-                    body: JSON.stringify({ files: { 'vault.json': { content: JSON.stringify(dataToSave, null, 2) } } })
+                    headers: { 
+                        'Authorization': `token ${token}`,
+                        'Content-Type': 'application/json' 
+                    },
+                    body: JSON.stringify({ 
+                        files: { 
+                            'vault.json': { 
+                                content: JSON.stringify(vaultSnippets, null, 2) 
+                            } 
+                        } 
+                    })
                 });
+
                 if(res.ok) {
                     if(status) { status.innerText = "PASTE SYNCED SUCCESSFUL"; status.style.color = "#10b981"; }
                     renderVault();
-                } else throw new Error();
+                } else {
+                    const errData = await res.json();
+                    throw new Error(errData.message || "Gist Update Failed");
+                }
             } catch (e) { 
-                if(status) { status.innerText = "SYNC FAILED"; status.style.color = "var(--accent)"; }
+                console.error("Save Error:", e);
+                if(status) { status.innerText = "SYNC FAILED: " + e.message; status.style.color = "var(--accent)"; }
             }
         }
 
