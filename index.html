@@ -557,6 +557,12 @@
             }
         }
 
+        function resetVault() {
+            if(!confirm("RESET VAULT CONNECTION?")) return;
+            localStorage.removeItem('cfx_vault_gistid');
+            fetchVault();
+        }
+
         function renderVault() {
             const container = document.getElementById('table-container');
             const searchQuery = document.getElementById('vault-search')?.value.toLowerCase() || '';
@@ -566,7 +572,10 @@
                     <div style="background: var(--panel); border-radius: 24px; border: 1px solid var(--border); display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 15px 40px rgba(0,0,0,0.3);">
                         <div style="padding: 25px; border-bottom: 1px solid var(--border); background: rgba(255,255,255,0.01);">
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                                <div style="font-size: 10px; font-weight: 900; letter-spacing: 2px; color: var(--text-dim);">PASTEBIN VAULT</div>
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <div style="font-size: 10px; font-weight: 900; letter-spacing: 2px; color: var(--text-dim);">PASTEBIN VAULT</div>
+                                    <button onclick="resetVault()" title="Reset Connection" style="background: transparent; border: none; cursor: pointer; display: flex; align-items: center; opacity: 0.3; color: var(--text-dim);"><i data-lucide="refresh-ccw" style="width: 10px; height: 10px;"></i></button>
+                                </div>
                                 <button class="btn" style="padding: 8px 12px; font-size: 14px; background: var(--accent); color: #fff; border: none;" onclick="addSnippet()">NEW PASTE</button>
                             </div>
                             <input type="text" id="vault-search" placeholder="Search pastes..." oninput="renderVault()" style="width: 100%; background: var(--bg); border: 1px solid var(--border); padding: 10px; border-radius: 10px; color: #fff; font-size: 12px; outline: none;">
