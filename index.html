@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CFX STUDIOS | SAAS COMMAND CENTER</title>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700;900&family=Inter:wght@400;700;900&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+    <title>CFX Studios | Command Center</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=Outfit:wght@900&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
     <style>
         :root {
             --bg: #05060b;
@@ -16,7 +17,7 @@
             --text-dim: #64748b;
             --border: rgba(255, 255, 255, 0.04);
             --glass: rgba(255, 255, 255, 0.02);
-            --sidebar-width: 260px;
+            --sidebar-width: 280px;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -53,55 +54,66 @@
             flex-direction: column;
             padding: 40px 0;
             z-index: 1000;
-            transition: transform 0.3s ease;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .logo-area {
-            padding: 0 30px;
+            padding: 0 35px;
             margin-bottom: 50px;
         }
         .logo {
             font-family: 'Outfit', sans-serif;
             font-weight: 900;
-            font-size: 16px;
-            letter-spacing: 4px;
+            font-size: 20px;
+            letter-spacing: 2px;
             color: var(--text);
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
         .logo span { color: var(--accent); }
 
-        .nav-group { margin-bottom: 30px; }
+        .nav-group { margin-bottom: 35px; }
         .nav-label {
-            padding: 0 30px;
+            padding: 0 35px;
             font-size: 10px;
             font-weight: 900;
             color: var(--text-dim);
-            letter-spacing: 2px;
+            letter-spacing: 2.5px;
             margin-bottom: 15px;
             text-transform: uppercase;
+            opacity: 0.5;
         }
 
         .nav-item {
-            padding: 14px 30px;
+            padding: 16px 35px;
             display: flex;
             align-items: center;
-            gap: 15px;
+            gap: 12px;
             cursor: pointer;
-            transition: all 0.3s;
-            font-size: 13px;
-            font-weight: 700;
+            transition: all 0.25s ease;
+            font-size: 14px;
+            font-weight: 600;
             color: var(--text-dim);
             position: relative;
         }
+        .nav-item i { width: 18px; height: 18px; opacity: 0.7; transition: all 0.25s; }
+        
         .nav-item:hover { color: #fff; background: rgba(255, 255, 255, 0.02); }
+        .nav-item:hover i { opacity: 1; transform: translateX(2px); }
+
         .nav-item.active {
             color: #fff;
-            background: rgba(255, 45, 85, 0.05);
+            background: linear-gradient(90deg, rgba(255, 45, 85, 0.1) 0%, rgba(255, 45, 85, 0) 100%);
         }
+        .nav-item.active i { color: var(--accent); opacity: 1; }
+        
         .nav-item.active::after {
             content: '';
             position: absolute;
-            left: 0; top: 0; height: 100%; width: 3px;
+            left: 0; top: 15%; height: 70%; width: 3px;
             background: var(--accent);
+            border-radius: 0 4px 4px 0;
             box-shadow: 0 0 15px var(--accent);
         }
 
@@ -292,31 +304,47 @@
         @keyframes pulse { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
 
     </style>
+    <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 <body>
     <button class="mobile-toggle" onclick="toggleSidebar()">☰</button>
 
     <div class="sidebar" id="sidebar">
         <div class="logo-area">
-            <div class="logo">CFX<span>STUDIOS</span></div>
+            <div class="logo"><i data-lucide="shield-check" style="color: var(--accent); width: 24px; height: 24px;"></i> CFX<span>STUDIOS</span></div>
             <div style="font-size: 9px; color: var(--text-dim); font-weight: 950; margin-top: 5px; letter-spacing: 2px;">COMMAND CENTER</div>
         </div>
 
         <div class="nav-group">
             <div class="nav-label">Platforms</div>
-            <div class="nav-item active" id="nav-windows" onclick="switchView('windows')">WINDOWS</div>
-            <div class="nav-item" id="nav-android" onclick="switchView('android')">ANDROID</div>
+            <div class="nav-item active" id="nav-windows" onclick="switchView('windows')">
+                <i data-lucide="monitor"></i>
+                WINDOWS
+            </div>
+            <div class="nav-item" id="nav-android" onclick="switchView('android')">
+                <i data-lucide="smartphone"></i>
+                ANDROID
+            </div>
         </div>
 
         <div class="nav-group">
             <div class="nav-label">Monitoring</div>
-            <div class="nav-item" id="nav-trials" onclick="switchView('trials')">GUEST TRIALS</div>
-            <div class="nav-item" id="nav-broadcast" onclick="switchView('broadcast')">BROADCAST</div>
+            <div class="nav-item" id="nav-trials" onclick="switchView('trials')">
+                <i data-lucide="clock"></i>
+                GUEST TRIALS
+            </div>
+            <div class="nav-item" id="nav-broadcast" onclick="switchView('broadcast')">
+                <i data-lucide="radio"></i>
+                BROADCAST
+            </div>
         </div>
 
         <div class="nav-group" style="margin-top: auto; padding-bottom: 20px;">
             <div class="nav-label">System</div>
-            <div class="nav-item btn-danger" onclick="flushAllKeys()">MASTER FLUSH</div>
+            <div class="nav-item btn-danger" onclick="flushAllKeys()">
+                <i data-lucide="trash-2"></i>
+                MASTER FLUSH
+            </div>
         </div>
     </div>
 
@@ -464,11 +492,13 @@
         function filterData() {
             currentPage = 1;
             renderTable();
+            lucide.createIcons();
         }
 
         function changePage(delta) {
             currentPage += delta;
             renderTable();
+            lucide.createIcons();
         }
 
         function renderTable() {
