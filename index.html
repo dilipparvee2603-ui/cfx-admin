@@ -324,10 +324,10 @@
         <header>
             <div class="header-title" id="view-title">WINDOWS WORKSTATION LICENSES</div>
             <div class="header-actions">
-                <select id="status-filter" class="search-box" style="width: 150px; background: var(--glass); border: 1px solid var(--border); padding: 10px; border-radius: 12px; font-weight: 700;" onchange="filterData()">
-                    <option value="all">ALL STATUS</option>
-                    <option value="activated">ACTIVATED</option>
-                    <option value="not-activated">AVAILABLE</option>
+                <select id="status-filter" class="search-box" style="width: 150px; background: var(--glass); border: 1px solid var(--border); padding: 10px; border-radius: 12px; font-weight: 700; color: #fff; outline: none; cursor: pointer;" onchange="filterData()">
+                    <option value="all" style="background: var(--sidebar); color: #fff;">ALL STATUS</option>
+                    <option value="activated" style="background: var(--sidebar); color: #fff;">ACTIVATED</option>
+                    <option value="not-activated" style="background: var(--sidebar); color: #fff;">AVAILABLE</option>
                 </select>
                 <div class="search-container">
                     <input type="text" class="search-box" id="search" placeholder="Search keys or users..." oninput="filterData()">
@@ -595,10 +595,10 @@
                             </div>
                             <div>
                                 <label style="display: block; font-size: 10px; font-weight: 900; color: var(--text-dim); letter-spacing: 2px; margin-bottom: 10px;">MESSAGE TYPE</label>
-                                <select id="bc-type" style="background: var(--bg); border: 1px solid var(--border); padding: 15px; border-radius: 10px; color: #fff; width: 100%; outline: none;">
-                                    <option value="message">MESSAGE / ANNOUNCEMENT</option>
-                                    <option value="update">SOFTWARE UPDATE</option>
-                                    <option value="warning">MAINTENANCE ALERT</option>
+                                <select id="bc-type" style="background: var(--bg); border: 1px solid var(--border); padding: 15px; border-radius: 10px; color: #fff; width: 100%; outline: none; cursor: pointer;">
+                                    <option value="message" style="background: var(--sidebar); color: #fff;">MESSAGE / ANNOUNCEMENT</option>
+                                    <option value="update" style="background: var(--sidebar); color: #fff;">SOFTWARE UPDATE</option>
+                                    <option value="warning" style="background: var(--sidebar); color: #fff;">MAINTENANCE ALERT</option>
                                 </select>
                             </div>
                         </div>
