@@ -92,8 +92,7 @@
         .hamburger { display: none; background: var(--surface); border: 1px solid var(--border); color: #fff; padding: 10px; border-radius: 10px; cursor: pointer; align-items: center; justify-content: center; transition: var(--transition); }
 
         .search-container { position: relative; width: 300px; display: flex; align-items: center; }
-        .search-container i { position: absolute; left: 15px; color: var(--text-muted); width: 14px; pointer-events: none; }
-        .search-container input { padding-left: 40px; width: 100%; background: var(--surface); border: 1px solid var(--border); padding: 12px 15px 12px 40px; border-radius: 12px; color: #fff; outline: none; transition: var(--transition); font-size: 13px; }
+        .search-container input { width: 100%; background: var(--surface); border: 1px solid var(--border); padding: 12px 15px; border-radius: 12px; color: #fff; outline: none; transition: var(--transition); font-size: 13px; }
         .search-container input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-muted); background: var(--bg); }
 
         select { 
@@ -241,7 +240,6 @@
                     </div>
                     <div class="controls">
                         <div class="search-container">
-                            <i data-lucide="search"></i>
                             <input type="text" id="search" placeholder="Search licenses..." oninput="filterData()">
                         </div>
                         <select id="status-filter" onchange="filterData()">
