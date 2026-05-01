@@ -536,11 +536,20 @@
                     headers: { 'Authorization': `token ${token}` }
                 });
                 const data = await res.json();
+                if (data.message === "Not Found") throw new Error("Gist Not Found");
                 vaultSnippets = (data.files && data.files['vault.json']) ? JSON.parse(data.files['vault.json'].content) : [];
                 renderVault();
             } catch (e) {
                 console.error("Vault Fetch Error:", e);
-                container.innerHTML = '<div class="loading" style="color: var(--accent);">VAULT FETCH FAILED</div>';
+                container.innerHTML = `
+                    <div style="padding: 100px 40px; text-align: center; background: radial-gradient(circle at center, rgba(255, 45, 85, 0.05) 0%, transparent 70%); border-radius: 30px;">
+                        <i data-lucide="cloud-off" style="width: 60px; height: 60px; color: var(--accent); margin-bottom: 25px; opacity: 0.8;"></i>
+                        <h2 style="font-family: 'Outfit'; margin-bottom: 10px; color: var(--accent);">VAULT FETCH FAILED</h2>
+                        <p style="color: var(--text-dim); font-size: 13px; margin-bottom: 30px; opacity: 0.6;">THE PROVIDED GIST ID MAY BE INVALID OR PRIVATE ACCESS DENIED</p>
+                        <button class="btn btn-danger" style="padding: 15px 30px;" onclick="resetVault()">CLEAR INVALID CONNECTION</button>
+                    </div>
+                `;
+                lucide.createIcons();
             }
         }
 
