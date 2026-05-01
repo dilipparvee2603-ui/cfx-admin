@@ -666,6 +666,19 @@
             renderVault();
         }
 
+        function addSnippet() {
+            vaultSnippets.unshift({ title: 'New Paste', content: '' });
+            activeSnippet = 0;
+            editSnippet(0);
+        }
+
+        async function deleteSnippet(idx) {
+            if(!confirm("DELETE THIS PASTE PERMANENTLY?")) return;
+            vaultSnippets.splice(idx, 1);
+            activeSnippet = null;
+            await saveVault();
+        }
+
         function copyPaste() {
             const content = document.getElementById('edit-content').value;
             navigator.clipboard.writeText(content);
