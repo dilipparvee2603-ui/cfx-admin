@@ -673,23 +673,41 @@
         function editSnippet(idx) {
             activeSnippet = idx;
             const s = vaultSnippets[idx];
-            document.getElementById('snippet-editor').innerHTML = `
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                    <input type="text" id="edit-title" value="${s.title}" style="background: transparent; border: none; color: #fff; font-size: 24px; font-family: 'Outfit'; font-weight: 900; width: 70%; outline: none;" placeholder="Paste Title">
-                    <button class="btn" style="padding: 10px 20px; font-size: 11px; display: flex; align-items: center; gap: 8px;" onclick="copyPaste()">
-                        <i data-lucide="copy" style="width: 14px; height: 14px;"></i> COPY PASTE
-                    </button>
+            const editor = document.getElementById('snippet-editor');
+            
+            editor.innerHTML = `
+                <div style="margin-bottom: 25px; display: flex; flex-direction: column; gap: 10px;">
+                    <label style="font-size: 10px; font-weight: 900; color: var(--text-dim); letter-spacing: 2px;">PASTE TITLE</label>
+                    <div style="display: flex; gap: 15px; align-items: center;">
+                        <input type="text" id="edit-title" value="${s.title}" oninput="syncSidebarTitle(${idx}, this.value)" style="flex: 1; background: var(--bg); border: 1px solid var(--border); padding: 15px 20px; border-radius: 12px; color: #fff; font-size: 16px; font-family: 'Outfit'; font-weight: 900; outline: none; transition: 0.3s;" placeholder="Enter Descriptive Title...">
+                        <button class="btn" style="padding: 15px 25px; font-size: 11px; white-space: nowrap;" onclick="copyPaste()">
+                            <i data-lucide="copy" style="width: 14px; height: 14px;"></i> COPY CONTENT
+                        </button>
+                    </div>
                 </div>
-                <textarea id="edit-content" style="flex: 1; background: var(--bg); border: 1px solid var(--border); padding: 25px; border-radius: 20px; color: #fff; font-family: 'JetBrains Mono', monospace; font-size: 14px; line-height: 1.6; outline: none; resize: none;" placeholder="Paste content here...">${s.content}</textarea>
-                <div style="margin-top: 25px; display: flex; justify-content: space-between; align-items: center;">
-                    <div id="vault-save-status" style="font-size: 11px; color: var(--text-dim); font-weight: 800;">READY TO SAVE</div>
+
+                <div style="flex: 1; display: flex; flex-direction: column; gap: 10px;">
+                    <label style="font-size: 10px; font-weight: 900; color: var(--text-dim); letter-spacing: 2px;">CONTENT / SCRIPT</label>
+                    <textarea id="edit-content" style="flex: 1; background: var(--bg); border: 1px solid var(--border); padding: 25px; border-radius: 20px; color: #fff; font-family: 'JetBrains Mono', monospace; font-size: 14px; line-height: 1.6; outline: none; resize: none; transition: 0.3s;" placeholder="Paste credentials, scripts, or notes here...">${s.content}</textarea>
+                </div>
+
+                <div style="margin-top: 25px; display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.01); padding: 20px; border-radius: 16px; border: 1px solid var(--border);">
+                    <div id="vault-save-status" style="font-size: 11px; color: var(--text-dim); font-weight: 800; letter-spacing: 1px;">STATUS: READY TO SYNC</div>
                     <div style="display: flex; gap: 15px;">
                         <button class="btn btn-danger" onclick="deleteSnippet(${idx})">DELETE</button>
-                        <button class="btn" style="background: var(--accent); color: #fff; border: none; padding: 12px 30px;" onclick="saveVault()">SAVE & SYNC</button>
+                        <button class="btn btn-accent" style="padding: 12px 35px;" onclick="saveVault()">SAVE & SYNC TO CLOUD</button>
                     </div>
                 </div>
             `;
+            lucide.createIcons();
             renderVault();
+        }
+
+        function syncSidebarTitle(idx, val) {
+            vaultSnippets[idx].title = val;
+            // Surgical update of sidebar title to avoid focus loss
+            const sidebarItem = document.querySelector(`[onclick="editSnippet(${idx})"] div:first-child`);
+            if (sidebarItem) sidebarItem.innerText = val || 'Untitled Paste';
         }
 
         function addSnippet() {
