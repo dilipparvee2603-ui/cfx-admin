@@ -486,17 +486,22 @@
             const navItem = document.getElementById(`nav-${view}`);
             if(navItem) navItem.classList.add('active');
 
-            // Only fetch if it's the first load OR if it's the Vault (Vault always needs refresh for safety)
-            if (!initialSyncDone || view === 'vault') {
-                await fetchData();
+            // Only fetch if it's the first load OR if the specific data is missing
+            if (view === 'vault') {
+                if (vaultSnippets.length === 0) await fetchVault();
+                else renderVault();
             } else {
-                renderTable(); // Just re-render from cache
+                if (!initialSyncDone) await fetchData();
+                else renderTable();
             }
         }
 
         async function fetchData(force = false) {
             const container = document.getElementById('table-container');
-            if (currentView === 'vault') return await fetchVault();
+            if (currentView === 'vault') {
+                if (force) vaultSnippets = []; // Clear cache to force fetch
+                return await fetchVault();
+            }
             if (currentView === 'broadcast') return renderTable();
 
             // Prevent flickering if data is already there
