@@ -545,8 +545,13 @@
         }
 
         function setupVault() {
-            const id = document.getElementById('vault-gist-setup').value;
+            let id = document.getElementById('vault-gist-setup').value.trim();
             if(id) {
+                // If user pasted a full URL, extract the last part
+                if (id.includes('/')) {
+                    const parts = id.split('/');
+                    id = parts[parts.length - 1];
+                }
                 localStorage.setItem('cfx_vault_gistid', id);
                 fetchVault();
             }
