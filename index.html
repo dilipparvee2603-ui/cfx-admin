@@ -544,9 +544,8 @@
         function toggleSidebar() {
             document.getElementById('sidebar').classList.toggle('active');
         }
-        // --- VAULT LOGIC ---
         let vaultSnippets = [];
-        let activeSnippet = null;
+        let activeSnippetId = null;
 
         async function fetchVault() {
             const token = localStorage.getItem('cfx_github_token');
@@ -554,56 +553,44 @@
             const container = document.getElementById('table-container');
             
             if (!token || !vaultGistId) {
-                container.innerHTML = `
-                    <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 100px 40px; min-height: 400px; background: radial-gradient(circle at center, rgba(255, 45, 85, 0.05) 0%, transparent 70%); border-radius: 30px;">
-                        <div style="position: relative; margin-bottom: 30px;">
-                            <i data-lucide="shield-off" style="width: 80px; height: 80px; color: var(--accent); opacity: 0.8; filter: drop-shadow(0 0 15px var(--accent-glow));"></i>
-                        </div>
-                        <h2 style="font-family: 'Outfit'; font-size: 28px; letter-spacing: 2px; margin-bottom: 10px; text-transform: uppercase; text-shadow: 0 0 20px var(--accent-glow);">MASTER VAULT LOCKED</h2>
-                        <p style="color: var(--text-dim); font-size: 13px; font-weight: 700; margin-bottom: 40px; letter-spacing: 1px; opacity: 0.6;">INITIALIZE PRIVATE GIST TO DECRYPT OPERATIONAL DATA</p>
-                        
-                        <div style="width: 100%; max-width: 400px; display: flex; flex-direction: column; gap: 20px; align-items: center;">
-                            <input type="text" id="vault-gist-setup" placeholder="PASTE PRIVATE GIST ID" style="background: var(--bg); border: 1px solid var(--border); padding: 18px 25px; border-radius: 15px; color: #fff; width: 100%; outline: none; font-family: 'JetBrains Mono', monospace; font-size: 12px; text-align: center; box-shadow: inset 0 2px 10px rgba(0,0,0,0.5);">
-                            <button class="btn" style="width: 100%; padding: 18px; background: var(--accent); color: #fff; border: none; font-size: 12px; box-shadow: 0 10px 20px var(--accent-glow);" onclick="setupVault()">INITIALIZE SECURE ACCESS</button>
-                        </div>
-                    </div>
-                `;
-                lucide.createIcons();
+                renderVaultSetup();
                 return;
             }
-
-            container.innerHTML = '<div class="loading">DECRYPTING VAULT...</div>';
-
-            try {
-                const res = await fetch(`https://api.github.com/gists/${vaultGistId}?t=${Date.now()}`, {
-                    headers: { 'Authorization': `token ${token}` }
-                });
-                const data = await res.json();
-                if (data.message === "Not Found") throw new Error("Gist Not Found");
-                vaultSnippets = (data.files && data.files['vault.json']) ? JSON.parse(data.files['vault.json'].content) : [];
-                renderVault();
-            } catch (e) {
-                console.error("Vault Fetch Error:", e);
-                container.innerHTML = `
-                    <div style="padding: 100px 40px; text-align: center; background: radial-gradient(circle at center, rgba(255, 45, 85, 0.05) 0%, transparent 70%); border-radius: 30px;">
-                        <i data-lucide="cloud-off" style="width: 60px; height: 60px; color: var(--accent); margin-bottom: 25px; opacity: 0.8;"></i>
-                        <h2 style="font-family: 'Outfit'; margin-bottom: 10px; color: var(--accent);">VAULT FETCH FAILED</h2>
-                        <p style="color: var(--text-dim); font-size: 13px; margin-bottom: 30px; opacity: 0.6;">THE PROVIDED GIST ID MAY BE INVALID OR PRIVATE ACCESS DENIED</p>
-                        <button class="btn btn-danger" style="padding: 15px 30px;" onclick="resetVault()">CLEAR INVALID CONNECTION</button>
+        function renderVaultSetup() {
+            const container = document.getElementById('table-container');
+            container.innerHTML = `
+                <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 100px 40px; min-height: 400px; background: radial-gradient(circle at center, rgba(255, 45, 85, 0.05) 0%, transparent 70%); border-radius: 30px;">
+                    <div style="position: relative; margin-bottom: 30px;">
+                        <i data-lucide="shield-off" style="width: 80px; height: 80px; color: var(--accent); opacity: 0.8; filter: drop-shadow(0 0 15px var(--accent-glow));"></i>
                     </div>
-                `;
-                lucide.createIcons();
-            }
+                    <h2 style="font-family: 'Outfit'; font-size: 28px; letter-spacing: 2px; margin-bottom: 10px; text-transform: uppercase; text-shadow: 0 0 20px var(--accent-glow);">MASTER VAULT LOCKED</h2>
+                    <p style="color: var(--text-dim); font-size: 13px; font-weight: 700; margin-bottom: 40px; letter-spacing: 1px; opacity: 0.6;">INITIALIZE PRIVATE GIST TO DECRYPT OPERATIONAL DATA</p>
+                    <div style="width: 100%; max-width: 400px; display: flex; flex-direction: column; gap: 20px; align-items: center;">
+                        <input type="text" id="vault-gist-setup" placeholder="PASTE PRIVATE GIST ID" style="background: var(--bg); border: 1px solid var(--border); padding: 18px 25px; border-radius: 15px; color: #fff; width: 100%; outline: none; font-family: 'JetBrains Mono', monospace; font-size: 12px; text-align: center;">
+                        <button class="btn btn-accent" style="width: 100%; padding: 18px;" onclick="setupVault()">INITIALIZE SECURE ACCESS</button>
+                    </div>
+                </div>
+            `;
+            lucide.createIcons();
+        }
+
+        function renderVaultError() {
+            const container = document.getElementById('table-container');
+            container.innerHTML = `
+                <div style="padding: 100px 40px; text-align: center; background: radial-gradient(circle at center, rgba(255, 45, 85, 0.05) 0%, transparent 70%); border-radius: 30px;">
+                    <i data-lucide="cloud-off" style="width: 60px; height: 60px; color: var(--accent); margin-bottom: 25px; opacity: 0.8;"></i>
+                    <h2 style="font-family: 'Outfit'; margin-bottom: 10px; color: var(--accent);">VAULT FETCH FAILED</h2>
+                    <p style="color: var(--text-dim); font-size: 13px; margin-bottom: 30px; opacity: 0.6;">THE PROVIDED GIST ID MAY BE INVALID OR PRIVATE ACCESS DENIED</p>
+                    <button class="btn btn-danger" style="padding: 15px 30px;" onclick="resetVault()">CLEAR INVALID CONNECTION</button>
+                </div>
+            `;
+            lucide.createIcons();
         }
 
         function setupVault() {
             let id = document.getElementById('vault-gist-setup').value.trim();
             if(id) {
-                // If user pasted a full URL, extract the last part
-                if (id.includes('/')) {
-                    const parts = id.split('/');
-                    id = parts[parts.length - 1];
-                }
+                if (id.includes('/')) id = id.split('/').pop();
                 localStorage.setItem('cfx_vault_gistid', id);
                 fetchVault();
             }
@@ -615,22 +602,45 @@
             fetchVault();
         }
 
+            // Only show loader if we have NO data
+            if (vaultSnippets.length === 0) {
+                container.innerHTML = '<div class="loading">DECRYPTING VAULT...</div>';
+            }
+
+            try {
+                const res = await fetch(`https://api.github.com/gists/${vaultGistId}?t=${Date.now()}`, {
+                    headers: { 'Authorization': `token ${token}` }
+                });
+                const data = await res.json();
+                if (data.message === "Not Found") throw new Error("Gist Not Found");
+                
+                const cloudData = (data.files && data.files['vault.json']) ? JSON.parse(data.files['vault.json'].content) : [];
+                
+                // Assign internal IDs if missing for stability
+                vaultSnippets = cloudData.map(s => ({ 
+                    id: s.id || `v-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`,
+                    ...s 
+                }));
+
+                renderVault();
+            } catch (e) {
+                console.error("Vault Fetch Error:", e);
+                renderVaultError();
+            }
+        }
+
         function renderVault() {
             const container = document.getElementById('table-container');
             const searchQuery = document.getElementById('vault-search')?.value.toLowerCase() || '';
             
-            // Initial shell if not present
             if (!container.querySelector('#vault-list')) {
                 container.innerHTML = `
                     <div style="display: grid; grid-template-columns: 320px 1fr; gap: 25px; height: calc(100vh - 220px);">
                         <div style="background: var(--panel); border-radius: 24px; border: 1px solid var(--border); display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 15px 40px rgba(0,0,0,0.3);">
                             <div style="padding: 25px; border-bottom: 1px solid var(--border); background: rgba(255,255,255,0.01);">
                                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                                    <div style="display: flex; align-items: center; gap: 8px;">
-                                        <div style="font-size: 10px; font-weight: 900; letter-spacing: 2px; color: var(--text-dim);">PASTEBIN VAULT</div>
-                                        <button onclick="resetVault()" title="Reset Connection" style="background: transparent; border: none; cursor: pointer; display: flex; align-items: center; opacity: 0.3; color: var(--text-dim);"><i data-lucide="refresh-ccw" style="width: 10px; height: 10px;"></i></button>
-                                    </div>
-                                    <button class="btn" style="padding: 8px 12px; font-size: 14px; background: var(--accent); color: #fff; border: none;" onclick="addSnippet()">NEW PASTE</button>
+                                    <div style="font-size: 10px; font-weight: 900; letter-spacing: 2px; color: var(--text-dim);">PASTEBIN VAULT</div>
+                                    <button class="btn btn-accent" style="padding: 8px 12px; font-size: 11px;" onclick="addSnippet()">NEW PASTE</button>
                                 </div>
                                 <input type="text" id="vault-search" placeholder="Search pastes..." oninput="renderVault()" style="width: 100%; background: var(--bg); border: 1px solid var(--border); padding: 10px; border-radius: 10px; color: #fff; font-size: 12px; outline: none;">
                             </div>
@@ -640,7 +650,7 @@
                             <div style="text-align: center; padding: 100px 40px; color: var(--text-dim);">
                                 <i data-lucide="clipboard-copy" style="width: 56px; height: 56px; margin-bottom: 25px; opacity: 0.15; color: var(--accent);"></i>
                                 <h3 style="font-family: 'Outfit'; color: #fff; margin-bottom: 10px;">PASTEBIN READY</h3>
-                                <p style="font-size: 13px; max-width: 300px; margin: 0 auto; line-height: 1.6;">Select a paste from the left or create a new one to start storing data.</p>
+                                <p style="font-size: 13px; max-width: 300px; margin: 0 auto; line-height: 1.6;">Select a paste or create a new one to begin.</p>
                             </div>
                         </div>
                     </div>
@@ -648,94 +658,74 @@
             }
 
             const listContainer = document.getElementById('vault-list');
-            let html = '';
-
             const filtered = vaultSnippets.filter(s => 
                 (s.title || '').toLowerCase().includes(searchQuery) || 
                 (s.content || '').toLowerCase().includes(searchQuery)
             );
 
-            if (filtered.length === 0) {
-                html = `<div style="text-align: center; color: var(--text-dim); padding: 40px; font-size: 12px; opacity: 0.5;">NO PASTES MATCHING...</div>`;
-            }
-
-            filtered.forEach((s) => {
-                const realIdx = vaultSnippets.indexOf(s);
-                const isActive = activeSnippet === realIdx;
-                html += `
-                    <div onclick="editSnippet(${realIdx})" style="padding: 20px; border-radius: 16px; margin-bottom: 12px; cursor: pointer; background: ${isActive ? 'linear-gradient(90deg, rgba(255,45,85,0.08) 0%, rgba(255,45,85,0.02) 100%)' : 'rgba(255,255,255,0.01)'}; border: 1px solid ${isActive ? 'var(--accent)' : 'var(--border)'}; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); position: relative; overflow: hidden;">
-                        <div style="font-size: 14px; font-weight: 700; color: ${isActive ? '#fff' : 'var(--text)'}; margin-bottom: 6px;">${s.title || 'Untitled Paste'}</div>
-                        <div style="font-size: 11px; color: var(--text-dim); font-family: 'JetBrains Mono', monospace; opacity: 0.7; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${s.content || 'No content...'}</div>
-                        ${isActive ? '<div style="position: absolute; left: 0; top: 0; height: 100%; width: 4px; background: var(--accent); box-shadow: 2px 0 10px var(--accent);"></div>' : ''}
-                    </div>
-                `;
-            });
-
-            listContainer.innerHTML = html;
+            listContainer.innerHTML = filtered.length === 0 ? 
+                `<div style="text-align: center; color: var(--text-dim); padding: 40px; font-size: 12px; opacity: 0.5;">NO PASTES FOUND</div>` :
+                filtered.map(s => {
+                    const isActive = activeSnippetId === s.id;
+                    return `
+                        <div onclick="editSnippet('${s.id}')" style="padding: 20px; border-radius: 16px; margin-bottom: 12px; cursor: pointer; background: ${isActive ? 'linear-gradient(90deg, rgba(255,45,85,0.08) 0%, rgba(255,45,85,0.02) 100%)' : 'rgba(255,255,255,0.01)'}; border: 1px solid ${isActive ? 'var(--accent)' : 'var(--border)'}; transition: all 0.3s; position: relative; overflow: hidden;">
+                            <div style="font-size: 14px; font-weight: 700; color: ${isActive ? '#fff' : 'var(--text)'}; margin-bottom: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${s.title || 'Untitled Paste'}</div>
+                            <div style="font-size: 11px; color: var(--text-dim); font-family: 'JetBrains Mono', monospace; opacity: 0.7; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${s.content || '...'}</div>
+                            ${isActive ? '<div style="position: absolute; left: 0; top: 0; height: 100%; width: 4px; background: var(--accent);"></div>' : ''}
+                        </div>
+                    `;
+                }).join('');
             lucide.createIcons();
         }
 
-        function editSnippet(idx) {
-            activeSnippet = idx;
-            const s = vaultSnippets[idx];
+        function editSnippet(id) {
+            activeSnippetId = id;
+            const s = vaultSnippets.find(x => x.id === id);
+            if (!s) return;
+
             const editor = document.getElementById('snippet-editor');
-            
             editor.innerHTML = `
                 <div style="margin-bottom: 25px; display: flex; flex-direction: column; gap: 10px;">
                     <label style="font-size: 10px; font-weight: 900; color: var(--text-dim); letter-spacing: 2px;">PASTE TITLE</label>
                     <div style="display: flex; gap: 15px; align-items: center;">
-                        <input type="text" id="edit-title" value="${s.title}" oninput="syncSidebarTitle(${idx}, this.value)" style="flex: 1; background: var(--bg); border: 1px solid var(--border); padding: 15px 20px; border-radius: 12px; color: #fff; font-size: 16px; font-family: 'Outfit'; font-weight: 900; outline: none; transition: 0.3s;" placeholder="Enter Descriptive Title...">
-                        <button class="btn" style="padding: 15px 25px; font-size: 11px; white-space: nowrap;" onclick="copyPaste()">
-                            <i data-lucide="copy" style="width: 14px; height: 14px;"></i> COPY CONTENT
-                        </button>
+                        <input type="text" id="edit-title" value="${s.title}" oninput="syncSidebarTitle('${id}', this.value)" style="flex: 1; background: var(--bg); border: 1px solid var(--border); padding: 15px 20px; border-radius: 12px; color: #fff; font-size: 16px; font-family: 'Outfit'; font-weight: 900; outline: none;" placeholder="Title...">
+                        <button class="btn" style="padding: 15px 25px;" onclick="copyPaste()">COPY CONTENT</button>
                     </div>
                 </div>
-
                 <div style="flex: 1; display: flex; flex-direction: column; gap: 10px;">
                     <label style="font-size: 10px; font-weight: 900; color: var(--text-dim); letter-spacing: 2px;">CONTENT / SCRIPT</label>
-                    <textarea id="edit-content" style="flex: 1; background: var(--bg); border: 1px solid var(--border); padding: 25px; border-radius: 20px; color: #fff; font-family: 'JetBrains Mono', monospace; font-size: 14px; line-height: 1.6; outline: none; resize: none; transition: 0.3s;" placeholder="Paste credentials, scripts, or notes here...">${s.content}</textarea>
+                    <textarea id="edit-content" style="flex: 1; background: var(--bg); border: 1px solid var(--border); padding: 25px; border-radius: 20px; color: #fff; font-family: 'JetBrains Mono', monospace; font-size: 14px; line-height: 1.6; outline: none; resize: none;">${s.content}</textarea>
                 </div>
-
                 <div style="margin-top: 25px; display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.01); padding: 20px; border-radius: 16px; border: 1px solid var(--border);">
                     <div id="vault-save-status" style="font-size: 11px; color: var(--text-dim); font-weight: 800; letter-spacing: 1px;">STATUS: READY TO SYNC</div>
                     <div style="display: flex; gap: 15px;">
-                        <button class="btn btn-danger" onclick="deleteSnippet(${idx})">DELETE</button>
-                        <button class="btn btn-accent" style="padding: 12px 35px;" onclick="saveVault()">SAVE & SYNC TO CLOUD</button>
+                        <button class="btn btn-danger" onclick="deleteSnippet('${id}')">DELETE</button>
+                        <button class="btn btn-accent" style="padding: 12px 35px;" onclick="saveVault()">SAVE & SYNC</button>
                     </div>
                 </div>
             `;
-            lucide.createIcons();
             renderVault();
         }
 
-        function syncSidebarTitle(idx, val) {
-            vaultSnippets[idx].title = val;
-            // Surgical update of sidebar title to avoid focus loss
-            const sidebarItem = document.querySelector(`[onclick="editSnippet(${idx})"] div:first-child`);
-            if (sidebarItem) sidebarItem.innerText = val || 'Untitled Paste';
+        function syncSidebarTitle(id, val) {
+            const s = vaultSnippets.find(x => x.id === id);
+            if(s) s.title = val;
+            const item = document.querySelector(`[onclick="editSnippet('${id}')"] div:first-child`);
+            if (item) item.innerText = val || 'Untitled Paste';
         }
 
         function addSnippet() {
-            vaultSnippets.unshift({ title: 'New Paste', content: '' });
-            activeSnippet = 0;
-            editSnippet(0);
+            const newId = `v-${Date.now()}`;
+            vaultSnippets.unshift({ id: newId, title: 'New Paste', content: '' });
+            activeSnippetId = newId;
+            editSnippet(newId);
         }
 
-        async function deleteSnippet(idx) {
-            if(!confirm("DELETE THIS PASTE PERMANENTLY?")) return;
-            vaultSnippets.splice(idx, 1);
-            activeSnippet = null;
+        async function deleteSnippet(id) {
+            if(!confirm("DELETE THIS PASTE?")) return;
+            vaultSnippets = vaultSnippets.filter(x => x.id !== id);
+            activeSnippetId = null;
             await saveVault();
-        }
-
-        function copyPaste() {
-            const content = document.getElementById('edit-content').value;
-            navigator.clipboard.writeText(content);
-            const btn = event.currentTarget;
-            const originalText = btn.innerHTML;
-            btn.innerHTML = '<i data-lucide="check" style="width: 14px; height: 14px;"></i> COPIED!';
-            lucide.createIcons();
-            setTimeout(() => { btn.innerHTML = originalText; lucide.createIcons(); }, 2000);
         }
 
         async function saveVault() {
@@ -743,23 +733,28 @@
             const token = localStorage.getItem('cfx_github_token');
             const vaultGistId = localStorage.getItem('cfx_vault_gistid');
             
-            if(activeSnippet !== null) {
-                vaultSnippets[activeSnippet].title = document.getElementById('edit-title').value;
-                vaultSnippets[activeSnippet].content = document.getElementById('edit-content').value;
+            if(activeSnippetId) {
+                const s = vaultSnippets.find(x => x.id === activeSnippetId);
+                if(s) {
+                    s.title = document.getElementById('edit-title').value;
+                    s.content = document.getElementById('edit-content').value;
+                }
             }
 
             if(status) { status.innerText = "SYNCING TO CLOUD..."; status.style.color = "var(--blue)"; }
 
             try {
+                // Strip internal IDs before saving to keep GitHub clean
+                const dataToSave = vaultSnippets.map(({id, ...rest}) => rest);
                 const res = await fetch(`https://api.github.com/gists/${vaultGistId}`, {
                     method: 'PATCH',
-                    headers: { 'Authorization': `token ${token}`, 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ files: { 'vault.json': { content: JSON.stringify(vaultSnippets, null, 2) } } })
+                    headers: { 'Authorization': `token ${token}` },
+                    body: JSON.stringify({ files: { 'vault.json': { content: JSON.stringify(dataToSave, null, 2) } } })
                 });
                 if(res.ok) {
                     if(status) { status.innerText = "PASTE SYNCED SUCCESSFUL"; status.style.color = "#10b981"; }
                     renderVault();
-                } else { throw new Error(); }
+                } else throw new Error();
             } catch (e) { 
                 if(status) { status.innerText = "SYNC FAILED"; status.style.color = "var(--accent)"; }
             }
