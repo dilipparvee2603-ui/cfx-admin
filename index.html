@@ -760,6 +760,16 @@
                                 </select>
                             </div>
                         </div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 25px;">
+                            <div>
+                                <label style="display: block; font-size: 10px; font-weight: 900; color: var(--text-dim); letter-spacing: 2px; margin-bottom: 12px;">REDIRECT URL</label>
+                                <input type="text" id="bc-url" placeholder="https://..." style="background: var(--bg); border: 1px solid var(--border); padding: 18px 25px; border-radius: 14px; color: #fff; width: 100%; outline: none;">
+                            </div>
+                            <div>
+                                <label style="display: block; font-size: 10px; font-weight: 900; color: var(--text-dim); letter-spacing: 2px; margin-bottom: 12px;">UPCOMING FEATURES (COMMA SEPARATED)</label>
+                                <input type="text" id="bc-upcoming" placeholder="4K Export, Cloud Sync, etc." style="background: var(--bg); border: 1px solid var(--border); padding: 18px 25px; border-radius: 14px; color: #fff; width: 100%; outline: none;">
+                            </div>
+                        </div>
                         <div style="margin-bottom: 30px;">
                             <label style="display: block; font-size: 10px; font-weight: 900; color: var(--text-dim); letter-spacing: 2px; margin-bottom: 12px;">GLOBAL ANNOUNCEMENT MESSAGE</label>
                             <textarea id="bc-msg" placeholder="Type message here..." style="background: var(--bg); border: 1px solid var(--border); padding: 20px 25px; border-radius: 14px; color: #fff; width: 100%; height: 100px; outline: none; resize: none; font-family: var(--font-main);"></textarea>
@@ -793,6 +803,8 @@
             const token = document.getElementById('set-token').value;
             const gistId = document.getElementById('set-gist').value;
             const msg = document.getElementById('bc-msg').value;
+            const url = document.getElementById('bc-url').value;
+            const upcomingRaw = document.getElementById('bc-upcoming').value;
             const btn = document.getElementById('btn-push');
 
             if(!token || !gistId || !msg) return alert("MISSING PARAMS");
@@ -800,15 +812,18 @@
             btn.innerText = `PUSHING TO ${target.toUpperCase()}...`;
             btn.disabled = true;
 
+            const upcoming = upcomingRaw ? upcomingRaw.split(',').map(s => s.trim()).filter(s => s !== "") : [];
+
             const payload = {
                 version: document.getElementById('bc-version').value,
                 message: msg,
                 type: document.getElementById('bc-type').value,
+                url: url,
+                upcoming: upcoming,
                 timestamp: Math.floor(Date.now() / 1000)
             };
 
             try {
-                // Filename depends on target usually, but often gistfile1.txt is default
                 const filename = target === 'mobile' ? 'broadcast_mobile.json' : 'broadcast.json';
                 const res = await fetch(`https://api.github.com/gists/${gistId}`, {
                     method: 'PATCH',
