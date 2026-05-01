@@ -335,6 +335,7 @@
         const GIST_VAULT = "8f30e36241b7d4124629a7c0c7ea8259";
         const GIST_MOBILE = "1fe63514b3ecd44ee78204544e42fcf9";
         const GIST_DESKTOP = "c7f92b675313e66440d2b7221ddb34d9";
+        const GITHUB_TOKEN = atob("Z2hwXzZHNWVTenVZTHFBc3VyMzlFT1dYUmExNlJjVU9lTTFDeE5nMA==");
 
         let allLicenses = [];
         let allTrials = [];
@@ -471,7 +472,7 @@
         // --- VAULT ---
         let vaultSnippets = []; let activeSnippetId = null;
         async function fetchVault() {
-            const token = localStorage.getItem('cfx_github_token'), gistId = GIST_VAULT;
+            const token = GITHUB_TOKEN, gistId = GIST_VAULT;
             if(!token || !gistId) return renderVaultSetup();
             const res = await fetch(`https://api.github.com/gists/${gistId}?t=${Date.now()}`, { headers: { 'Authorization': `token ${token}` } });
             const data = await res.json();
@@ -495,7 +496,7 @@
         async function saveVault() {
             const s = vaultSnippets.find(x => x.id === activeSnippetId);
             s.title = document.getElementById('v-title').value; s.content = document.getElementById('v-content').value;
-            const token = localStorage.getItem('cfx_github_token'), gistId = GIST_VAULT;
+            const token = GITHUB_TOKEN, gistId = GIST_VAULT;
             await fetch(`https://api.github.com/gists/${gistId}`, { method: 'PATCH', headers: { 'Authorization': `token ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ files: { 'vault.json': { content: JSON.stringify(vaultSnippets, null, 2) } } }) });
             fetchVault();
         }
@@ -506,7 +507,7 @@
 
         // --- BROADCAST ---
         function renderBroadcastView() {
-            document.getElementById('table-container').innerHTML = `<div style="padding:clamp(20px, 5vw, 45px);background:var(--surface);border-radius:32px;border:1px solid var(--border);"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:40px;gap:20px;flex-wrap:wrap;"><h2 style="font-weight:900;">BROADCAST HUB</h2><div style="display:flex;gap:15px;align-items:center;"><div id="bc-status" style="font-size:10px;font-weight:800;color:var(--text-muted);letter-spacing:1px;">READY</div><select id="bc-target" onchange="loadTargetConfig()" style="padding:8px 12px;font-size:11px;"><option value="desktop">DESKTOP</option><option value="mobile">MOBILE</option></select><div style="width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 10px var(--green);"></div></div></div><div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(250px, 1fr));gap:24px;margin-bottom:24px;"><div class="form-group"><label>TOKEN</label><input type="password" id="set-token"></div><div class="form-group"><label>GIST ID</label><input type="text" id="set-gist"></div></div><div style="border-top:1px solid var(--border);padding-top:30px;"><div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(250px, 1fr));gap:24px;margin-bottom:24px;"><div class="form-group"><label>VERSION</label><input type="text" id="bc-version"></div><div class="form-group"><label>TYPE</label><select id="bc-type" onchange="toggleUrlField()" style="width:100%"><option value="message">ANNOUNCEMENT</option><option value="update">FORCE UPDATE</option><option value="warning">MAINTENANCE</option></select></div></div><div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(250px, 1fr));gap:24px;margin-bottom:24px;"><div class="form-group" id="url-group" style="display:none;"><label>REDIRECT URL</label><input type="text" id="bc-url"></div><div class="form-group"><label>FEATURES (COMMA)</label><input type="text" id="bc-upcoming"></div></div><div class="form-group"><label>MESSAGE</label><textarea id="bc-msg" style="width:100%;height:100px;background:var(--bg);border:1px solid var(--border);color:#fff;padding:15px;border-radius:12px;outline:none;resize:none;"></textarea></div><div style="display:flex;gap:15px;flex-wrap:wrap;"><button class="btn" style="flex:1;min-width:180px;" onclick="saveAdminCreds()">SAVE CONFIG</button><button class="btn btn-accent" id="btn-push" style="flex:2;min-width:220px;" onclick="pushBroadcast()">PUSH LIVE</button></div></div></div>`;
+            document.getElementById('table-container').innerHTML = `<div style="padding:clamp(20px, 5vw, 45px);background:var(--surface);border-radius:32px;border:1px solid var(--border);"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:40px;gap:20px;flex-wrap:wrap;"><h2 style="font-weight:900;">BROADCAST HUB</h2><div style="display:flex;gap:15px;align-items:center;"><div id="bc-status" style="font-size:10px;font-weight:800;color:var(--text-muted);letter-spacing:1px;">READY</div><select id="bc-target" onchange="loadTargetConfig()" style="padding:8px 12px;font-size:11px;"><option value="desktop">DESKTOP</option><option value="mobile">MOBILE</option></select><div style="width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 10px var(--green);"></div></div></div><div style="display:grid;grid-template-columns:1fr;gap:24px;margin-bottom:24px;"><div class="form-group"><label>PIPELINE GIST ID</label><input type="text" id="set-gist" readonly style="opacity:0.6;cursor:not-allowed;"></div></div><div style="border-top:1px solid var(--border);padding-top:30px;"><div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(250px, 1fr));gap:24px;margin-bottom:24px;"><div class="form-group"><label>VERSION</label><input type="text" id="bc-version"></div><div class="form-group"><label>TYPE</label><select id="bc-type" onchange="toggleUrlField()" style="width:100%"><option value="message">ANNOUNCEMENT</option><option value="update">FORCE UPDATE</option><option value="warning">MAINTENANCE</option></select></div></div><div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(250px, 1fr));gap:24px;margin-bottom:24px;"><div class="form-group" id="url-group" style="display:none;"><label>REDIRECT URL</label><input type="text" id="bc-url"></div><div class="form-group"><label>FEATURES (COMMA)</label><input type="text" id="bc-upcoming"></div></div><div class="form-group"><label>MESSAGE</label><textarea id="bc-msg" style="width:100%;height:100px;background:var(--bg);border:1px solid var(--border);color:#fff;padding:15px;border-radius:12px;outline:none;resize:none;"></textarea></div><div style="display:flex;gap:15px;flex-wrap:wrap;"><button class="btn btn-accent" id="btn-push" style="width:100%;min-width:220px;" onclick="pushBroadcast()">PUSH LIVE BROADCAST</button></div></div></div>`;
             loadTargetConfig(); lucide.createIcons();
         }
 
@@ -517,13 +518,12 @@
 
         async function loadTargetConfig() {
             const target = document.getElementById('bc-target').value;
-            document.getElementById('set-token').value = localStorage.getItem('cfx_github_token') || '';
             document.getElementById('set-gist').value = (target === 'mobile' ? GIST_MOBILE : GIST_DESKTOP);
             await fetchGistContent();
         }
 
         async function fetchGistContent() {
-            const target = document.getElementById('bc-target').value, token = document.getElementById('set-token').value, gistId = (target === 'mobile' ? GIST_MOBILE : GIST_DESKTOP), status = document.getElementById('bc-status');
+            const target = document.getElementById('bc-target').value, token = GITHUB_TOKEN, gistId = (target === 'mobile' ? GIST_MOBILE : GIST_DESKTOP), status = document.getElementById('bc-status');
             if (!token || !gistId) return; if (status) status.innerText = "FETCHING...";
             try {
                 const filename = target === 'mobile' ? 'gistfile2.txt' : 'gistfile1.txt';
@@ -542,12 +542,11 @@
         }
 
         function saveAdminCreds() {
-            localStorage.setItem('cfx_github_token', document.getElementById('set-token').value);
-            alert("CONFIG SAVED");
+            alert("CONFIG LOCKED BY HARDCODE");
         }
 
         async function pushBroadcast() {
-            const target = document.getElementById('bc-target').value, token = document.getElementById('set-token').value, gistId = (target === 'mobile' ? GIST_MOBILE : GIST_DESKTOP), msg = document.getElementById('bc-msg').value, type = document.getElementById('bc-type').value, rawUrl = document.getElementById('bc-url').value, upcomingRaw = document.getElementById('bc-upcoming').value, btn = document.getElementById('btn-push');
+            const target = document.getElementById('bc-target').value, token = GITHUB_TOKEN, gistId = (target === 'mobile' ? GIST_MOBILE : GIST_DESKTOP), msg = document.getElementById('bc-msg').value, type = document.getElementById('bc-type').value, rawUrl = document.getElementById('bc-url').value, upcomingRaw = document.getElementById('bc-upcoming').value, btn = document.getElementById('btn-push');
             if(!token || !gistId || !msg) return alert("MISSING PARAMS"); btn.innerText = "PUSHING..."; btn.disabled = true;
             const url = (type === 'update') ? rawUrl : "";
             const payload = { version: document.getElementById('bc-version').value, message: msg, type: type, url: url, upcoming: upcomingRaw ? upcomingRaw.split(',').map(s => s.trim()).filter(s => s !== "") : [], timestamp: Math.floor(Date.now() / 1000) };
