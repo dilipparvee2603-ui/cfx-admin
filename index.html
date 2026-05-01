@@ -444,9 +444,11 @@
                 if (currentView === 'broadcast') return renderTable();
                 
                 const lResp = await fetch(`${FB_URL}/licenses.json?auth=${FB_SECRET}`);
+                if (!lResp.ok) throw new Error(`Licenses HTTP ${lResp.status}`);
                 const lData = await lResp.json();
                 
                 const tResp = await fetch(`${FB_URL}/trials.json?auth=${FB_SECRET}`);
+                if (!tResp.ok) throw new Error(`Trials HTTP ${tResp.status}`);
                 const tData = await tResp.json();
 
                 allLicenses = lData ? Object.keys(lData).map(k => ({ id: k, ...lData[k] })) : [];
@@ -456,7 +458,11 @@
                 renderTable();
             } catch (err) {
                 console.error("Fetch Data Error:", err);
-                document.getElementById('table-container').innerHTML = `<div class="loading" style="color: var(--accent)">CLOUD CONNECTION LOST</div>`;
+                document.getElementById('table-container').innerHTML = `
+                    <div class="loading" style="color: var(--accent); letter-spacing: 2px;">
+                        CLOUD CONNECTION LOST<br>
+                        <span style="font-size: 10px; opacity: 0.5;">${err.message}</span>
+                    </div>`;
             }
         }
 
