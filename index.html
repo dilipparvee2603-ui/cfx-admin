@@ -356,9 +356,10 @@
         
         // --- PRODUCTION CREDENTIALS ---
         const GIST_CONFIG = {
-            GH_TOKEN: "ghp_O6Gk7o2pTz8uY9rI1vX3w2qL5mK8nH4jA0sB", // Replace with your actual token if different
+            GH_TOKEN: "ghp_O6Gk7o2pTz8uY9rI1vX3w2qL5mK8nH4jA0sB", // Update token if necessary
             VAULT_ID: "8f30e36241b7d4124629a7c0c7ea8259",
-            BROADCAST_ID: "c7f92b675313e66440d2b7221ddb34d9"
+            DESKTOP_ID: "c7f92b675313e66440d2b7221ddb34d9",
+            MOBILE_ID: "1fe63514b3ecd44ee78204544e42fcf9"
         };
         
         let allLicenses = [];
@@ -554,15 +555,16 @@
         }
 
         async function loadTargetConfig() {
+            const target = document.getElementById('bc-target').value;
             document.getElementById('set-token').value = GIST_CONFIG.GH_TOKEN;
-            document.getElementById('set-gist').value = GIST_CONFIG.BROADCAST_ID;
+            document.getElementById('set-gist').value = target === 'mobile' ? GIST_CONFIG.MOBILE_ID : GIST_CONFIG.DESKTOP_ID;
             await fetchGistContent();
         }
 
         async function fetchGistContent() {
             const target = document.getElementById('bc-target').value, 
                   token = GIST_CONFIG.GH_TOKEN, 
-                  gistId = GIST_CONFIG.BROADCAST_ID, 
+                  gistId = target === 'mobile' ? GIST_CONFIG.MOBILE_ID : GIST_CONFIG.DESKTOP_ID, 
                   status = document.getElementById('bc-status');
             if (!token || !gistId) return; if (status) status.innerText = "FETCHING...";
             try {
@@ -591,7 +593,7 @@
         async function pushBroadcast() {
             const target = document.getElementById('bc-target').value, 
                   token = GIST_CONFIG.GH_TOKEN, 
-                  gistId = GIST_CONFIG.BROADCAST_ID, 
+                  gistId = target === 'mobile' ? GIST_CONFIG.MOBILE_ID : GIST_CONFIG.DESKTOP_ID, 
                   msg = document.getElementById('bc-msg').value, 
                   type = document.getElementById('bc-type').value, 
                   rawUrl = document.getElementById('bc-url').value, 
