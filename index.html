@@ -350,7 +350,7 @@
 
         async function switchView(view) {
             currentView = view; currentPage = 1;
-            if(window.innerWidth <= 1024) toggleSidebar(); // Auto-close on mobile
+            if(window.innerWidth <= 1024) toggleSidebar(); 
 
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
             const activeNav = document.getElementById(`nav-${view}`);
@@ -363,9 +363,11 @@
             const titleEl = document.getElementById('view-title');
 
             metrics.style.display = (['windows', 'android', 'trials'].includes(view)) ? 'grid' : 'none';
-            pagination.style.display = (['windows', 'android', 'trials'].includes(view)) ? 'flex' : 'none';
             filter.style.display = (['windows', 'android'].includes(view)) ? 'block' : 'none';
             search.style.display = (['windows', 'android', 'trials'].includes(view)) ? 'block' : 'none';
+            
+            // Explicitly hide pagination on tab switch; renderTable will show it if needed
+            pagination.style.display = 'none';
             
             const titles = { 'windows': 'WINDOWS LICENSES', 'android': 'ANDROID LICENSES', 'trials': 'GUEST TRIALS', 'broadcast': 'BROADCAST HUB', 'vault': 'MASTER VAULT' };
             titleEl.innerText = titles[view] || 'COMMAND CENTER';
@@ -414,7 +416,7 @@
                 const pageData = filtered.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
                 
                 const pagControls = document.getElementById('pagination-controls');
-                if (totalPages > 1) {
+                if (totalPages > 1 && ['windows', 'android'].includes(currentView)) {
                     pagControls.style.display = 'flex';
                     pagControls.querySelector('#page-info').innerHTML = `PAGE <span>${currentPage}</span> OF <span>${totalPages}</span>`;
                     const prevBtn = pagControls.querySelectorAll('button')[0];
