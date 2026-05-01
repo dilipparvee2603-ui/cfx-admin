@@ -824,13 +824,14 @@
             };
 
             try {
-                const filename = target === 'mobile' ? 'broadcast_mobile.json' : 'broadcast.json';
+                // Precise target filenames
+                const filename = target === 'mobile' ? 'gistfile2.txt' : 'gistfile1.txt';
                 const res = await fetch(`https://api.github.com/gists/${gistId}`, {
                     method: 'PATCH',
                     headers: { 'Authorization': `token ${token}`, 'Content-Type': 'application/json' },
                     body: JSON.stringify({ files: { [filename]: { content: JSON.stringify(payload, null, 2) } } })
                 });
-                if(res.ok) alert(`${target.toUpperCase()} BROADCAST LIVE`);
+                if(res.ok) alert(`${target.toUpperCase()} BROADCAST LIVE (${filename})`);
                 else alert("GITHUB REJECTED PUSH");
             } catch(e) { alert("PUSH FAILED"); }
             finally {
