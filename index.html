@@ -726,6 +726,7 @@
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px;">
                         <h2 style="font-family: 'Outfit'; letter-spacing: 1px;">GLOBAL BROADCAST HUB</h2>
                         <div style="display: flex; gap: 15px; align-items: center;">
+                            <div id="bc-status" style="font-size: 9px; font-weight: 950; color: var(--text-dim); letter-spacing: 2px;">READY</div>
                             <select id="bc-target" onchange="loadTargetConfig()" style="background: var(--bg); border: 1px solid var(--border); padding: 8px 15px; border-radius: 10px; color: var(--accent); font-weight: 900; font-size: 11px; outline: none; cursor: pointer; text-transform: uppercase;">
                                 <option value="desktop">DESKTOP WORKSTATION</option>
                                 <option value="mobile">MOBILE APP</option>
@@ -785,10 +786,57 @@
             lucide.createIcons();
         }
 
-        function loadTargetConfig() {
+        async function loadTargetConfig() {
             const target = document.getElementById('bc-target').value;
             document.getElementById('set-token').value = localStorage.getItem('cfx_github_token') || '';
             document.getElementById('set-gist').value = localStorage.getItem(`cfx_gist_${target}`) || '';
+            
+            // Auto-fetch existing data
+            await fetchGistContent();
+        }
+
+        async function fetchGistContent() {
+            const target = document.getElementById('bc-target').value;
+            const token = document.getElementById('set-token').value;
+            const gistId = document.getElementById('set-gist').value;
+            const status = document.getElementById('bc-status');
+            
+            if (!token || !gistId) return;
+
+            if (status) {
+                status.innerText = "FETCHING LIVE...";
+                status.style.color = "var(--blue)";
+            }
+
+            try {
+                const filename = target === 'mobile' ? 'gistfile2.txt' : 'gistfile1.txt';
+                const response = await fetch(`https://api.github.com/gists/${gistId}?t=${Date.now()}`, {
+                    headers: { 'Authorization': `token ${token}` }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.files && data.files[filename]) {
+                        const content = JSON.parse(data.files[filename].content);
+                        document.getElementById('bc-version').value = content.version || '';
+                        document.getElementById('bc-msg').value = content.message || '';
+                        document.getElementById('bc-type').value = content.type || 'message';
+                        document.getElementById('bc-url').value = content.url || '';
+                        document.getElementById('bc-upcoming').value = (content.upcoming || []).join(', ');
+                        
+                        if (status) {
+                            status.innerText = "SYNCED";
+                            status.style.color = "#10b981";
+                        }
+                    }
+                }
+            } catch (e) {
+                console.error("Fetch Error:", e);
+                if (status) {
+                    status.innerText = "SYNC ERROR";
+                    status.style.color = "var(--accent)";
+                }
+            }
         }
 
         function saveAdminCreds() {
