@@ -253,14 +253,25 @@
                 box-shadow: 20px 0 50px rgba(0,0,0,0.5);
             }
             .sidebar.active { transform: translateX(0); }
-            .mobile-toggle { display: block; }
-            header { padding: 0 20px 0 70px; height: 70px; }
-            .header-title { font-size: 14px; }
-            .search-container { width: 100%; display: none; } /* Hide search on mobile header to save space */
-            .content-area { padding: 25px 15px; }
-            .metrics-grid { gap: 15px; margin-bottom: 25px; }
-            .metric-card { padding: 18px; border-radius: 16px; }
-            .metric-value { font-size: 22px; }
+            .mobile-toggle { display: block; position: static; margin-right: 15px; }
+            header { 
+                padding: 0 20px; 
+                height: 70px; 
+                justify-content: flex-start;
+            }
+            .header-actions { flex: 1; justify-content: flex-end; }
+            .header-title { display: none; }
+            .search-container { display: none; }
+            .content-area { padding: 20px 15px; }
+            
+            .metrics-grid { 
+                grid-template-columns: repeat(2, 1fr) !important; 
+                gap: 12px; 
+                margin-bottom: 25px; 
+            }
+            .metric-card { padding: 15px; border-radius: 16px; }
+            .metric-label { font-size: 9px; margin-bottom: 5px; }
+            .metric-value { font-size: 20px; }
             
             /* Broadcast Form Mobile Optimization */
             #table-container div[style*="padding: 40px"] {
@@ -271,6 +282,7 @@
                 gap: 15px !important;
             }
             
+            #status-filter { width: 120px !important; font-size: 11px; padding: 8px !important; }
             .btn { padding: 12px 15px; width: 100%; margin-bottom: 5px; }
             td .btn { width: auto; margin-right: 5px; }
         }
