@@ -280,8 +280,22 @@
                 });
 
                 const totalPages = Math.ceil(filtered.length / PAGE_SIZE) || 1;
+                currentPage = Math.max(1, Math.min(currentPage, totalPages));
                 const pageData = filtered.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
-                document.getElementById('page-info').innerText = `PAGE ${currentPage} OF ${totalPages}`;
+                
+                const pagControls = document.getElementById('pagination-controls');
+                if (totalPages > 1) {
+                    pagControls.style.display = 'flex';
+                    document.getElementById('page-info').innerText = `PAGE ${currentPage} OF ${totalPages}`;
+                    const prevBtn = pagControls.querySelectorAll('button')[0];
+                    const nextBtn = pagControls.querySelectorAll('button')[1];
+                    prevBtn.disabled = currentPage === 1;
+                    prevBtn.style.opacity = currentPage === 1 ? '0.3' : '1';
+                    nextBtn.disabled = currentPage === totalPages;
+                    nextBtn.style.opacity = currentPage === totalPages ? '0.3' : '1';
+                } else {
+                    pagControls.style.display = 'none';
+                }
 
                 pageData.forEach(l => {
                     const isActivated = !!(l.email || l.userEmail);
@@ -307,7 +321,11 @@
         }
 
         function filterData() { currentPage = 1; renderTable(); }
-        function changePage(d) { currentPage += d; renderTable(); }
+        function changePage(d) { 
+            currentPage += d; 
+            renderTable(); 
+            document.querySelector('.main-deck').scrollTop = 0;
+        }
         function openModal(id, key) { document.getElementById('edit-id').value = id; document.getElementById('modal-key').value = key; document.getElementById('modal-email').value = ''; document.getElementById('license-modal').style.display = 'flex'; }
         function closeModal() { document.getElementById('license-modal').style.display = 'none'; }
 
