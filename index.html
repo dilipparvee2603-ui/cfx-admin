@@ -9,175 +9,242 @@
     <style>
         :root {
             --bg: #030407;
-            --sidebar: #06070c;
-            --panel: rgba(10, 11, 20, 0.8);
-            --accent: #FF2D55;
+            --sidebar: #07080f;
+            --panel: rgba(13, 14, 26, 0.7);
+            --accent: #ff2d55;
             --accent-glow: rgba(255, 45, 85, 0.4);
             --blue: #3b82f6;
+            --blue-glow: rgba(59, 130, 246, 0.3);
             --text: #ffffff;
-            --text-dim: #64748b;
-            --border: rgba(255, 255, 255, 0.04);
-            --glass: rgba(255, 255, 255, 0.02);
-            --sidebar-width: 280px;
-            --header-height: 90px;
+            --text-dim: #8a8fb5;
+            --border: rgba(255, 255, 255, 0.08);
+            --glass: rgba(255, 255, 255, 0.03);
+            --glass-strong: rgba(255, 255, 255, 0.08);
+            --gradient: linear-gradient(135deg, #ff2d55 0%, #ff5e7e 100%);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-font-smoothing: antialiased; }
-        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body { 
-            background-color: var(--bg); 
-            background-image: 
-                radial-gradient(circle at 0% 0%, rgba(255, 45, 85, 0.05) 0%, transparent 50%),
-                radial-gradient(circle at 100% 100%, rgba(59, 130, 246, 0.05) 0%, transparent 50%);
-            color: var(--text); 
             font-family: 'Inter', sans-serif; 
-            display: flex;
-            height: 100vh;
-            width: 100vw;
+            background: var(--bg); 
+            color: var(--text); 
+            height: 100vh; 
             overflow: hidden;
+            letter-spacing: -0.01em;
         }
 
-        /* --- SIDEBAR --- */
-        .sidebar {
-            width: var(--sidebar-width);
-            min-width: var(--sidebar-width);
+        /* --- SAAS LAYOUT --- */
+        .app-container {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            height: 100vh;
+            background: radial-gradient(circle at 50% -20%, #1a1c2e 0%, var(--bg) 70%);
+        }
+
+        /* --- SIDEBAR ELITE --- */
+        #sidebar {
             background: var(--sidebar);
             border-right: 1px solid var(--border);
             display: flex;
             flex-direction: column;
-            padding: 40px 0;
+            padding: 30px 20px;
+            position: relative;
             z-index: 100;
         }
 
-        .logo-area { padding: 0 40px; margin-bottom: 50px; }
-        .logo {
-            font-family: 'Outfit', sans-serif;
-            font-weight: 900;
-            font-size: 22px;
-            letter-spacing: 2px;
-            color: var(--text);
+        .brand-area {
             display: flex;
             align-items: center;
             gap: 12px;
+            margin-bottom: 50px;
+            padding: 0 10px;
         }
-        .logo span { color: var(--accent); text-shadow: 0 0 20px var(--accent-glow); }
 
-        .nav-group { margin-bottom: 35px; }
-        .nav-label {
-            padding: 0 40px;
-            font-size: 10px;
+        .brand-logo {
+            width: 36px;
+            height: 36px;
+            background: var(--gradient);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 20px var(--accent-glow);
+        }
+
+        .brand-name {
+            font-family: 'Outfit', sans-serif;
             font-weight: 900;
+            font-size: 18px;
+            letter-spacing: 1px;
+            background: linear-gradient(to bottom, #fff, #8a8fb5);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .nav-label {
+            font-size: 10px;
+            font-weight: 800;
             color: var(--text-dim);
-            letter-spacing: 3px;
-            margin-bottom: 15px;
+            letter-spacing: 2px;
+            margin: 20px 0 10px 12px;
             text-transform: uppercase;
-            opacity: 0.5;
         }
 
         .nav-item {
-            padding: 16px 40px;
             display: flex;
             align-items: center;
-            gap: 15px;
-            cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            font-size: 13px;
-            font-weight: 700;
+            gap: 12px;
+            padding: 14px 16px;
+            border-radius: 12px;
             color: var(--text-dim);
-            position: relative;
-        }
-        .nav-item i { width: 18px; height: 18px; opacity: 0.4; transition: 0.3s; }
-        .nav-item:hover { color: #fff; background: rgba(255, 255, 255, 0.01); }
-        .nav-item.active { color: #fff; background: linear-gradient(90deg, rgba(255, 45, 85, 0.08) 0%, transparent 100%); }
-        .nav-item.active i { color: var(--accent); opacity: 1; filter: drop-shadow(0 0 8px var(--accent-glow)); }
-        .nav-item.active::after {
-            content: '';
-            position: absolute; left: 0; top: 20%; height: 60%; width: 3px;
-            background: var(--accent); border-radius: 0 4px 4px 0; box-shadow: 0 0 15px var(--accent);
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 600;
+            transition: var(--transition);
+            cursor: pointer;
+            border: 1px solid transparent;
         }
 
-        /* --- WRAPPER --- */
-        .main-wrapper {
-            flex: 1;
+        .nav-item i { width: 18px; height: 18px; opacity: 0.7; }
+
+        .nav-item:hover {
+            color: #fff;
+            background: var(--glass);
+        }
+
+        .nav-item.active {
+            color: #fff;
+            background: rgba(255, 45, 85, 0.08);
+            border: 1px solid rgba(255, 45, 85, 0.2);
+            box-shadow: inset 0 0 15px rgba(255, 45, 85, 0.05);
+        }
+
+        .nav-item.active i { color: var(--accent); opacity: 1; }
+
+        /* --- CONTENT ENGINE --- */
+        .main-stage {
             display: flex;
             flex-direction: column;
-            height: 100vh;
             overflow: hidden;
-            position: relative;
         }
 
         header {
-            height: var(--header-height);
-            min-height: var(--header-height);
-            padding: 0 50px;
+            height: 90px;
+            padding: 0 40px;
             display: flex;
-            justify-content: space-between;
             align-items: center;
+            justify-content: space-between;
             border-bottom: 1px solid var(--border);
-            background: rgba(3, 4, 7, 0.6);
             backdrop-filter: blur(20px);
-            z-index: 50;
+            background: rgba(3, 4, 7, 0.5);
+            z-index: 90;
         }
 
-        .view-title-area { display: flex; flex-direction: column; gap: 4px; }
-        .header-title { 
-            font-family: 'Outfit', sans-serif; 
-            font-weight: 900; font-size: 22px; 
-            letter-spacing: -0.5px; text-transform: uppercase;
-            text-shadow: 0 0 30px rgba(255,255,255,0.05);
-        }
-
-        .header-actions { display: flex; align-items: center; gap: 20px; }
-
-        .content-area {
-            flex: 1;
-            padding: 40px 50px;
-            overflow-y: auto;
+        .search-wrapper {
             position: relative;
+            width: 400px;
         }
 
-        /* --- COMPONENTS --- */
-        .metrics-grid {
+        .search-wrapper i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-dim);
+            pointer-events: none;
+        }
+
+        .search-box {
+            width: 100%;
+            background: var(--glass);
+            border: 1px solid var(--border);
+            padding: 12px 15px 12px 45px;
+            border-radius: 14px;
+            color: #fff;
+            font-size: 13px;
+            outline: none;
+            transition: var(--transition);
+        }
+
+        .search-box:focus {
+            border-color: var(--blue);
+            background: rgba(59, 130, 246, 0.05);
+            box-shadow: 0 0 20px var(--blue-glow);
+        }
+
+        .content-scroller {
+            flex: 1;
+            overflow-y: auto;
+            padding: 40px;
+            scroll-behavior: smooth;
+        }
+
+        /* --- SAAS CARDS --- */
+        .dashboard-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
             gap: 25px;
             margin-bottom: 40px;
         }
-        .metric-card {
-            background: var(--panel);
-            border: 1px solid var(--border);
-            padding: 25px;
-            border-radius: 20px;
-            transition: all 0.4s;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-        }
-        .metric-card:hover { transform: translateY(-5px); border-color: rgba(255, 255, 255, 0.1); }
-        .metric-label { font-size: 10px; font-weight: 900; color: var(--text-dim); letter-spacing: 2px; margin-bottom: 10px; text-transform: uppercase; }
-        .metric-value { font-family: 'Outfit', sans-serif; font-weight: 900; font-size: 34px; }
 
-        .table-panel {
+        .stat-card {
             background: var(--panel);
             border: 1px solid var(--border);
             border-radius: 24px;
+            padding: 25px;
+            position: relative;
+            overflow: hidden;
+            transition: var(--transition);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+        }
+
+        .stat-icon {
+            width: 45px;
+            height: 45px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-family: 'Outfit';
+            font-weight: 900;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* --- DATA TABLES 2.0 --- */
+        .table-container {
+            background: var(--panel);
+            border-radius: 28px;
+            border: 1px solid var(--border);
             overflow: hidden;
             box-shadow: 0 20px 50px rgba(0,0,0,0.3);
-            display: flex;
-            flex-direction: column;
         }
 
         table { width: 100%; border-collapse: collapse; }
-        th {
-            padding: 20px 35px;
-            font-size: 10px; font-weight: 900;
-            color: var(--text-dim); letter-spacing: 2px;
-            text-transform: uppercase;
-            border-bottom: 1px solid var(--border);
-            background: rgba(255, 255, 255, 0.01);
-            text-align: left;
-        }
-        td { padding: 20px 35px; font-size: 14px; border-bottom: 1px solid var(--border); color: #cbd5e1; }
-        .key-cell { font-family: 'JetBrains Mono', monospace; font-weight: 600; color: #fff; font-size: 13px; }
-
         .search-box {
             background: var(--glass);
             border: 1px solid var(--border);
@@ -230,7 +297,93 @@
             header { padding: 0 25px; }
             .content-area { padding: 25px; }
         }
-...
+
+        function renderTable() {
+            const container = document.getElementById('content-area');
+            const data = currentView === 'windows' ? allLicenses : (currentView === 'android' ? [] : allTrials);
+            
+            const filtered = data.filter(item => {
+                const search = document.getElementById('search').value.toLowerCase();
+                return JSON.stringify(item).toLowerCase().includes(search);
+            });
+
+            const start = (currentPage - 1) * itemsPerPage;
+            const paginated = filtered.slice(start, start + itemsPerPage);
+
+            container.innerHTML = `
+                <div class="dashboard-grid">
+                    <div class="stat-card">
+                        <div class="stat-label">Total Entries</div>
+                        <div class="stat-value">${filtered.length}</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Page Coverage</div>
+                        <div class="stat-value">${paginated.length}</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Current View</div>
+                        <div class="stat-value" style="font-size: 18px; color: var(--blue);">${currentView.toUpperCase()}</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">System Mode</div>
+                        <div class="stat-value" style="font-size: 18px; color: #10b981;">SECURE</div>
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                ${currentView === 'windows' ? `
+                                    <th>LICENSE KEY</th>
+                                    <th>STATUS</th>
+                                    <th>HWID / USER</th>
+                                    <th>EXPIRY</th>
+                                    <th>ACTIONS</th>
+                                ` : `
+                                    <th>SESSION ID</th>
+                                    <th>START TIME</th>
+                                    <th>DURATION</th>
+                                    <th>MODEL</th>
+                                    <th>ACTION</th>
+                                `}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${paginated.map(item => `
+                                <tr>
+                                    ${currentView === 'windows' ? `
+                                        <td style="font-family: 'JetBrains Mono'; font-weight: 700; color: #fff;">${item.key}</td>
+                                        <td><span class="status-pill ${item.activated ? 'status-active' : 'status-idle'}">${item.activated ? 'ACTIVATED' : 'IDLE'}</span></td>
+                                        <td style="color: var(--text-dim); font-size: 11px;">${item.hwid || 'NOT LINKED'}</td>
+                                        <td style="color: var(--text-dim);">${item.expiry || 'LIFETIME'}</td>
+                                        <td>
+                                            <button class="btn" onclick="editLicense('${item.key}')" style="padding: 6px 12px; font-size: 10px;">EDIT</button>
+                                        </td>
+                                    ` : `
+                                        <td style="font-family: 'JetBrains Mono'; color: #fff;">${item.id.substring(0, 12)}...</td>
+                                        <td>${item.startTime || '--'}</td>
+                                        <td>${item.duration || '24H'}</td>
+                                        <td>${item.model || 'GENERIC'}</td>
+                                        <td><button class="btn btn-danger" onclick="deleteTrial('${item.id}')" style="padding: 6px 12px; font-size: 10px;">REVOKE</button></td>
+                                    `}
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 30px; padding: 0 10px;">
+                    <div style="font-size: 12px; font-weight: 700; color: var(--text-dim);">PAGE ${currentPage} OF ${Math.ceil(filtered.length / itemsPerPage)}</div>
+                    <div style="display: flex; gap: 10px;">
+                        <button class="btn" onclick="changePage(-1)">PREVIOUS</button>
+                        <button class="btn" onclick="changePage(1)">NEXT</button>
+                    </div>
+                </div>
+            `;
+            lucide.createIcons();
+        }
+
         function renderVault() {
             const container = document.getElementById('table-container');
             let html = `
@@ -397,47 +550,78 @@
                     </select>
                 </div>
 
-                <div style="display: flex; gap: 15px;">
-                    <button class="btn" style="flex: 1;" onclick="closeModal()">CANCEL</button>
-                    <button class="btn" id="modal-save-btn" style="flex: 1; background: var(--accent); color: #fff; border: none;" onclick="saveLicense()">SAVE LICENSE</button>
-                </div>
-            </div>
-        </div>
-
-        <div class="content-area">
-            <div class="metrics-grid" id="metrics-grid">
-                <div class="metric-card">
-                    <div class="metric-label">Total Workstations</div>
-                    <div class="metric-value" id="stat-total-keys">--</div>
-                </div>
-                <div class="metric-card">
-                    <div class="metric-label">Active Licenses</div>
-                    <div class="metric-value" id="stat-activated" style="color: var(--blue);">--</div>
-                </div>
-                <div class="metric-card">
-                    <div class="metric-label">Available Slots</div>
-                    <div class="metric-value" id="stat-remaining" style="color: #10b981;">--</div>
-                </div>
-                <div class="metric-card">
-                    <div class="metric-label">Trial Sessions</div>
-                    <div class="metric-value" id="stat-active-trials" style="color: var(--accent);">--</div>
-                </div>
+    <div class="app-container">
+        <aside id="sidebar">
+            <div class="brand-area">
+                <div class="brand-logo"><i data-lucide="layers" style="color: #fff; width: 20px;"></i></div>
+                <div class="brand-name">CFX ELITE</div>
             </div>
 
-            <div class="table-panel">
-                <div id="table-container">
-                    <div class="loading">INITIALIZING COMMAND DECK...</div>
+            <div class="nav-group">
+                <div class="nav-label">OVERVIEW</div>
+                <div class="nav-item active" id="nav-home" onclick="switchView('home')">
+                    <i data-lucide="layout-dashboard"></i> DASHBOARD
                 </div>
-                <div class="pagination" id="pagination-controls" style="display: none;">
-                    <div class="page-info" id="page-info">PAGE 1 OF 1</div>
-                    <div class="page-btns" style="display: flex; gap: 10px;">
-                        <button class="btn" onclick="changePage(-1)">PREV</button>
-                        <button class="btn" onclick="changePage(1)">NEXT</button>
+                
+                <div class="nav-label">MANAGEMENT</div>
+                <div class="nav-item" id="nav-windows" onclick="switchView('windows')">
+                    <i data-lucide="monitor"></i> WINDOWS
+                </div>
+                <div class="nav-item" id="nav-android" onclick="switchView('android')">
+                    <i data-lucide="smartphone"></i> ANDROID
+                </div>
+                <div class="nav-item" id="nav-trials" onclick="switchView('trials')">
+                    <i data-lucide="clock"></i> GUEST TRIALS
+                </div>
+
+                <div class="nav-label">COMMUNICATION</div>
+                <div class="nav-item" id="nav-broadcast" onclick="switchView('broadcast')">
+                    <i data-lucide="radio"></i> BROADCAST HUB
+                </div>
+
+                <div class="nav-label">RESOURCES</div>
+                <div class="nav-item" id="nav-vault" onclick="switchView('vault')">
+                    <i data-lucide="shield-check"></i> MASTER VAULT
+                </div>
+            </div>
+
+            <div style="margin-top: auto; padding-top: 20px; border-top: 1px solid var(--border);">
+                <div style="display: flex; align-items: center; gap: 12px; padding: 10px;">
+                    <div style="width: 32px; height: 32px; border-radius: 8px; background: var(--blue); display: flex; align-items: center; justify-content: center; font-family: 'Outfit'; font-weight: 900; font-size: 12px;">AD</div>
+                    <div style="flex: 1;">
+                        <div style="font-size: 12px; font-weight: 700;">Administrator</div>
+                        <div style="font-size: 10px; color: var(--text-dim);">Root Access</div>
                     </div>
                 </div>
             </div>
-        </div>
+        </aside>
+
+        <main class="main-stage">
+            <header>
+                <div class="view-title-area">
+                    <div class="header-title" id="view-title" style="font-family: 'Outfit'; font-weight: 900; letter-spacing: 1px;">DASHBOARD</div>
+                    <div id="view-subtitle" style="font-size: 10px; color: var(--text-dim); font-weight: 800; letter-spacing: 1px; text-transform: uppercase;">Real-time System Status</div>
+                </div>
+
+                <div class="header-actions" style="display: flex; align-items: center; gap: 20px;">
+                    <div class="search-wrapper">
+                        <i data-lucide="search"></i>
+                        <input type="text" class="search-box" id="search" placeholder="Quick search keys, users, or logs..." oninput="filterData()">
+                    </div>
+                    
+                    <button class="btn-elite" onclick="fetchData(true)">
+                        <i data-lucide="refresh-cw" style="width: 14px;"></i> SYNC NOW
+                    </button>
+                </div>
+            </header>
+
+            <div class="content-scroller" id="content-area">
+                <!-- Content injected here -->
+            </div>
+        </main>
     </div>
+
+    <div id="toast-container"></div>
 
     <script>
         const FB_URL = "https://cfx-scenepack-creator-default-rtdb.firebaseio.com";
@@ -475,19 +659,31 @@
                 metrics.style.display = 'grid';
                 search.style.display = 'flex';
                 pagination.style.display = 'flex';
-                titleEl.innerText = view.toUpperCase() + (view === 'trials' ? ' GUEST TRIALS' : ' WORKSTATION LICENSES');
-            } else if (view === 'broadcast') {
-                titleEl.innerText = 'GLOBAL BROADCAST HUB';
-            } else if (view === 'vault') {
-                titleEl.innerText = 'MASTER VAULT SNIPPETS';
-            }
-
-            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+            
+            // Update UI State
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
             const navItem = document.getElementById(`nav-${view}`);
             if(navItem) navItem.classList.add('active');
 
-            // Only fetch if it's the first load OR if the specific data is missing
-            if (view === 'vault') {
+            const title = document.getElementById('view-title');
+            const subtitle = document.getElementById('view-subtitle');
+            
+            const viewMeta = {
+                'home': ['SYSTEM DASHBOARD', 'Executive Overview & Health'],
+                'windows': ['WORKSTATION LICENSES', 'Manage Desktop Nodes'],
+                'android': ['MOBILE DEPLOYMENTS', 'Fleet Management'],
+                'trials': ['GUEST SESSIONS', 'Anonymous Access Logs'],
+                'broadcast': ['BROADCAST HUB', 'Global Announcement Engine'],
+                'vault': ['MASTER VAULT', 'Secret Storage & Scripts']
+            };
+
+            [title.innerText, subtitle.innerText] = viewMeta[view] || ['ADMIN PANEL', ''];
+
+            // Route View
+            if (view === 'home') {
+                renderHome();
+                if (!initialSyncDone) await fetchData();
+            } else if (view === 'vault') {
                 if (vaultSnippets.length === 0) await fetchVault();
                 else renderVault();
             } else {
@@ -496,10 +692,98 @@
             }
         }
 
+        function renderHome() {
+            const container = document.getElementById('content-area');
+            container.innerHTML = `
+                <div class="dashboard-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: rgba(59, 130, 246, 0.1); color: var(--blue);"><i data-lucide="monitor"></i></div>
+                        <div class="stat-value" id="dash-windows">--</div>
+                        <div class="stat-label">Windows Nodes</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: rgba(16, 185, 129, 0.1); color: #10b981;"><i data-lucide="check-circle"></i></div>
+                        <div class="stat-value" id="dash-active">--</div>
+                        <div class="stat-label">Active Licenses</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: rgba(255, 45, 85, 0.1); color: var(--accent);"><i data-lucide="clock"></i></div>
+                        <div class="stat-value" id="dash-trials">--</div>
+                        <div class="stat-label">Live Trials</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: rgba(255, 255, 255, 0.05); color: #fff;"><i data-lucide="shield-check"></i></div>
+                        <div class="stat-value" id="dash-vault">${vaultSnippets.length}</div>
+                        <div class="stat-label">Vault Snippets</div>
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 30px;">
+                    <div class="table-container" style="padding: 30px;">
+                        <h3 style="font-family: 'Outfit'; margin-bottom: 20px;">SYSTEM STATUS</h3>
+                        <div style="display: flex; flex-direction: column; gap: 20px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; padding: 15px; background: var(--glass); border-radius: 12px; border: 1px solid var(--border);">
+                                <div style="display: flex; align-items: center; gap: 15px;">
+                                    <div style="width: 10px; height: 10px; border-radius: 50%; background: #10b981; box-shadow: 0 0 10px #10b981;"></div>
+                                    <div style="font-size: 13px; font-weight: 700;">Firebase RTDB Connectivity</div>
+                                </div>
+                                <div style="font-size: 11px; font-weight: 800; color: #10b981;">OPERATIONAL</div>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; align-items: center; padding: 15px; background: var(--glass); border-radius: 12px; border: 1px solid var(--border);">
+                                <div style="display: flex; align-items: center; gap: 15px;">
+                                    <div style="width: 10px; height: 10px; border-radius: 50%; background: #10b981; box-shadow: 0 0 10px #10b981;"></div>
+                                    <div style="font-size: 13px; font-weight: 700;">GitHub Gist (Vault)</div>
+                                </div>
+                                <div style="font-size: 11px; font-weight: 800; color: #10b981;">CONNECTED</div>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; align-items: center; padding: 15px; background: var(--glass); border-radius: 12px; border: 1px solid var(--border);">
+                                <div style="display: flex; align-items: center; gap: 15px;">
+                                    <div style="width: 10px; height: 10px; border-radius: 50%; background: var(--blue); box-shadow: 0 0 10px var(--blue);"></div>
+                                    <div style="font-size: 13px; font-weight: 700;">Global Broadcast Engine</div>
+                                    <span style="font-size: 10px; background: var(--blue); color: #fff; padding: 2px 6px; border-radius: 4px;">v5.8</span>
+                                </div>
+                                <div style="font-size: 11px; font-weight: 800; color: var(--blue);">ACTIVE</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="table-container" style="padding: 30px; background: linear-gradient(135deg, rgba(255,45,85,0.05) 0%, transparent 100%);">
+                        <h3 style="font-family: 'Outfit'; margin-bottom: 20px;">QUICK ACTIONS</h3>
+                        <div style="display: flex; flex-direction: column; gap: 12px;">
+                            <button class="btn" style="width: 100%; justify-content: flex-start; padding: 15px;" onclick="switchView('vault'); addSnippet();">
+                                <i data-lucide="plus-circle"></i> NEW VAULT PASTE
+                            </button>
+                            <button class="btn" style="width: 100%; justify-content: flex-start; padding: 15px;" onclick="switchView('windows'); openModal();">
+                                <i data-lucide="key"></i> GENERATE LICENSE
+                            </button>
+                            <button class="btn" style="width: 100%; justify-content: flex-start; padding: 15px;" onclick="switchView('broadcast')">
+                                <i data-lucide="megaphone"></i> POST ANNOUNCEMENT
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            lucide.createIcons();
+            updateDashboardStats();
+        }
+
+        function updateDashboardStats() {
+            const keys = allLicenses;
+            const dashWindows = document.getElementById('dash-windows');
+            const dashActive = document.getElementById('dash-active');
+            const dashTrials = document.getElementById('dash-trials');
+            const dashVault = document.getElementById('dash-vault');
+
+            if(dashWindows) dashWindows.innerText = keys.length;
+            if(dashActive) dashActive.innerText = keys.filter(k => k.status === 'ACTIVE').length;
+            if(dashTrials) dashTrials.innerText = allTrials.length;
+            if(dashVault) dashVault.innerText = vaultSnippets.length;
+        }
+
         async function fetchData(force = false) {
-            const container = document.getElementById('table-container');
+            const container = document.getElementById('content-area');
             if (currentView === 'vault') {
-                if (force) vaultSnippets = []; // Clear cache to force fetch
+                if (force) vaultSnippets = [];
                 return await fetchVault();
             }
             if (currentView === 'broadcast') return renderTable();
@@ -655,42 +939,31 @@
                 vaultSnippets = cloudData.map(s => ({ 
                     id: s.id || `v-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`,
                     ...s 
-                }));
-
-                renderVault();
-            } catch (e) {
-                console.error("Vault Fetch Error:", e);
-                renderVaultError();
-            }
-        }
-
         function renderVault() {
-            const container = document.getElementById('table-container');
+            const container = document.getElementById('content-area');
             const searchQuery = document.getElementById('vault-search')?.value.toLowerCase() || '';
             
-            if (!container.querySelector('#vault-list')) {
-                container.innerHTML = `
-                    <div style="display: grid; grid-template-columns: 320px 1fr; gap: 25px; height: calc(100vh - 220px);">
-                        <div style="background: var(--panel); border-radius: 24px; border: 1px solid var(--border); display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 15px 40px rgba(0,0,0,0.3);">
-                            <div style="padding: 25px; border-bottom: 1px solid var(--border); background: rgba(255,255,255,0.01);">
-                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                                    <div style="font-size: 10px; font-weight: 900; letter-spacing: 2px; color: var(--text-dim);">PASTEBIN VAULT</div>
-                                    <button class="btn btn-accent" style="padding: 8px 12px; font-size: 11px;" onclick="addSnippet()">NEW PASTE</button>
-                                </div>
-                                <input type="text" id="vault-search" placeholder="Search pastes..." oninput="renderVault()" style="width: 100%; background: var(--bg); border: 1px solid var(--border); padding: 10px; border-radius: 10px; color: #fff; font-size: 12px; outline: none;">
+            container.innerHTML = `
+                <div style="display: grid; grid-template-columns: 320px 1fr; gap: 30px; height: calc(100vh - 220px);">
+                    <div class="table-container" style="display: flex; flex-direction: column; overflow: hidden;">
+                        <div style="padding: 25px; border-bottom: 1px solid var(--border); background: rgba(255,255,255,0.01);">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                                <div style="font-size: 10px; font-weight: 900; letter-spacing: 2px; color: var(--text-dim);">PASTEBIN VAULT</div>
+                                <button class="btn-elite" style="padding: 8px 12px; font-size: 11px;" onclick="addSnippet()">NEW PASTE</button>
                             </div>
-                            <div id="vault-list" style="flex: 1; overflow-y: auto; padding: 15px;"></div>
+                            <input type="text" id="vault-search" placeholder="Search pastes..." oninput="renderVault()" style="width: 100%; background: var(--bg); border: 1px solid var(--border); padding: 12px; border-radius: 12px; color: #fff; font-size: 12px; outline: none;">
                         </div>
-                        <div id="snippet-editor" style="background: var(--panel); border-radius: 24px; border: 1px solid var(--border); padding: 35px; display: flex; flex-direction: column; box-shadow: 0 15px 40px rgba(0,0,0,0.3);">
-                            <div style="text-align: center; padding: 100px 40px; color: var(--text-dim);">
-                                <i data-lucide="clipboard-copy" style="width: 56px; height: 56px; margin-bottom: 25px; opacity: 0.15; color: var(--accent);"></i>
-                                <h3 style="font-family: 'Outfit'; color: #fff; margin-bottom: 10px;">PASTEBIN READY</h3>
-                                <p style="font-size: 13px; max-width: 300px; margin: 0 auto; line-height: 1.6;">Select a paste or create a new one to begin.</p>
-                            </div>
+                        <div id="vault-list" style="flex: 1; overflow-y: auto; padding: 15px;"></div>
+                    </div>
+                    <div id="snippet-editor" class="table-container" style="padding: 35px; display: flex; flex-direction: column;">
+                        <div style="text-align: center; padding: 100px 40px; color: var(--text-dim);">
+                            <i data-lucide="shield-check" style="width: 56px; height: 56px; margin-bottom: 25px; opacity: 0.15; color: var(--accent);"></i>
+                            <h3 style="font-family: 'Outfit'; color: #fff; margin-bottom: 10px;">VAULT SECURED</h3>
+                            <p style="font-size: 13px; max-width: 300px; margin: 0 auto; line-height: 1.6;">Select a paste or create a new one to begin editing.</p>
                         </div>
                     </div>
-                `;
-            }
+                </div>
+            `;
 
             const listContainer = document.getElementById('vault-list');
             const filtered = vaultSnippets.filter(s => 
@@ -699,19 +972,18 @@
             );
 
             listContainer.innerHTML = filtered.length === 0 ? 
-                `<div style="text-align: center; color: var(--text-dim); padding: 40px; font-size: 12px; opacity: 0.5;">NO PASTES FOUND</div>` :
+                `<div style="text-align: center; color: var(--text-dim); padding: 40px; font-size: 12px; opacity: 0.5;">EMPTY VAULT</div>` :
                 filtered.map(s => {
                     const isActive = activeSnippetId === s.id;
                     return `
-                        <div onclick="editSnippet('${s.id}')" style="padding: 20px; border-radius: 16px; margin-bottom: 12px; cursor: pointer; background: ${isActive ? 'linear-gradient(90deg, rgba(255,45,85,0.08) 0%, rgba(255,45,85,0.02) 100%)' : 'rgba(255,255,255,0.01)'}; border: 1px solid ${isActive ? 'var(--accent)' : 'var(--border)'}; transition: all 0.3s; position: relative; overflow: hidden; display: flex; align-items: center; justify-content: space-between; group;">
+                        <div onclick="editSnippet('${s.id}')" style="padding: 20px; border-radius: 16px; margin-bottom: 12px; cursor: pointer; background: ${isActive ? 'rgba(255,45,85,0.08)' : 'rgba(255,255,255,0.01)'}; border: 1px solid ${isActive ? 'var(--accent)' : 'var(--border)'}; transition: all 0.3s; position: relative; display: flex; align-items: center; justify-content: space-between;">
                             <div style="flex: 1; min-width: 0;">
-                                <div style="font-size: 14px; font-weight: 700; color: ${isActive ? '#fff' : 'var(--text)'}; margin-bottom: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${s.title || 'Untitled Paste'}</div>
-                                <div style="font-size: 11px; color: var(--text-dim); font-family: 'JetBrains Mono', monospace; opacity: 0.7; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${s.content || '...'}</div>
+                                <div style="font-size: 14px; font-weight: 700; color: ${isActive ? '#fff' : 'var(--text)'}; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${s.title || 'Untitled'}</div>
+                                <div style="font-size: 10px; color: var(--text-dim); font-family: 'JetBrains Mono'; opacity: 0.7; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${s.content || '...'}</div>
                             </div>
-                            <button onclick="event.stopPropagation(); deleteSnippet('${s.id}')" style="background: transparent; border: none; color: var(--text-dim); padding: 8px; cursor: pointer; transition: 0.3s; opacity: 0.5; border-radius: 8px;" onmouseover="this.style.opacity='1'; this.style.color='var(--accent)'; this.style.background='rgba(255,45,85,0.1)'" onmouseout="this.style.opacity='0.5'; this.style.color='var(--text-dim)'; this.style.background='transparent'">
-                                <i data-lucide="trash-2" style="width: 14px; height: 14px;"></i>
+                            <button onclick="event.stopPropagation(); deleteSnippet('${s.id}')" style="background: transparent; border: none; color: var(--text-dim); padding: 8px; cursor: pointer; transition: 0.3s; opacity: 0.3;">
+                                <i data-lucide="trash-2" style="width: 14px;"></i>
                             </button>
-                            ${isActive ? '<div style="position: absolute; left: 0; top: 0; height: 100%; width: 4px; background: var(--accent);"></div>' : ''}
                         </div>
                     `;
                 }).join('');
