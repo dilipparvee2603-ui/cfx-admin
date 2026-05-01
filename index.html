@@ -487,14 +487,59 @@
 
         async function switchView(view) {
             currentView = view;
+            currentPage = 1;
+
+            const metrics = document.getElementById('metrics-grid');
+            const pagination = document.getElementById('pagination-controls');
+            const filter = document.getElementById('status-filter');
+            const search = document.getElementById('search');
+            const titleEl = document.getElementById('view-title');
+
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-            document.getElementById(`nav-${view}`).classList.add('active');
-            document.getElementById('view-title').innerText = view.toUpperCase().replace('_', ' ');
+            const activeNav = document.getElementById(`nav-${view}`);
+            if (activeNav) activeNav.classList.add('active');
+
+            metrics.style.display = (['windows', 'android', 'trials'].includes(view)) ? 'grid' : 'none';
+            pagination.style.display = (['windows', 'android', 'trials'].includes(view)) ? 'flex' : 'none';
+            filter.style.display = (['windows', 'android'].includes(view)) ? 'block' : 'none';
+            search.style.display = (['windows', 'android', 'trials'].includes(view)) ? 'block' : 'none';
             
-            document.getElementById('metrics-grid').style.display = (view === 'windows' || view === 'android' || view === 'trials') ? 'grid' : 'none';
-            document.getElementById('status-filter').style.display = (view === 'windows' || view === 'android') ? 'block' : 'none';
-            
+            const titles = {
+                'windows': 'WINDOWS WORKSTATION LICENSES',
+                'android': 'ANDROID MOBILE LICENSES',
+                'trials': 'GUEST TRIAL SESSIONS',
+                'broadcast': 'GLOBAL BROADCAST HUB',
+                'vault': 'MASTER VAULT SNIPPETS'
+            };
+            titleEl.innerText = titles[view] || 'COMMAND CENTER';
+
             await fetchData();
+        }
+
+        async function fetchData(force = false) {
+            const container = document.getElementById('table-container');
+            if (currentView === 'vault') return await fetchVault();
+            if (currentView === 'broadcast') return renderBroadcastView();
+
+            if (!allLicenses.length || force) {
+                container.innerHTML = '<div class="loading">SYNCHRONIZING WITH CLOUD...</div>';
+            }
+            
+            try {
+                const [lRes, tRes] = await Promise.all([
+                    fetch(`${FB_URL}/licenses.json?auth=${FB_SECRET}`),
+                    fetch(`${FB_URL}/trials.json?auth=${FB_SECRET}`)
+                ]);
+                const lData = await lRes.json();
+                const tData = await tRes.json();
+                allLicenses = lData ? Object.keys(lData).map(k => ({ id: k, ...lData[k] })) : [];
+                allTrials = tData ? Object.keys(tData).map(k => ({ id: k, ...tData[k] })) : [];
+                initialSyncDone = true;
+                updateStats();
+                renderTable();
+            } catch (err) {
+                container.innerHTML = `<div class="loading" style="color: var(--accent);">CLOUD CONNECTION LOST</div>`;
+            }
         }
 
         function updateStats() {
