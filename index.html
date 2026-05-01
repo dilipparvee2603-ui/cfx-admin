@@ -440,6 +440,9 @@
 
         async function fetchData() {
             try {
+                if (currentView === 'vault') return await fetchVault();
+                if (currentView === 'broadcast') return renderTable();
+                
                 const lResp = await fetch(`${FB_URL}/licenses.json?auth=${FB_SECRET}`);
                 const lData = await lResp.json();
                 
@@ -452,9 +455,47 @@
                 updateStats();
                 renderTable();
             } catch (err) {
-                console.error(err);
+                console.error("Fetch Data Error:", err);
                 document.getElementById('table-container').innerHTML = `<div class="loading" style="color: var(--accent)">CLOUD CONNECTION LOST</div>`;
             }
+        }
+
+        function switchView(view) {
+            currentView = view;
+            currentPage = 1;
+            
+            if (window.innerWidth <= 900) {
+                document.getElementById('sidebar').classList.remove('active');
+            }
+
+            const filter = document.getElementById('status-filter');
+            const metrics = document.getElementById('metrics-grid');
+            const search = document.querySelector('.search-container');
+            const titleEl = document.getElementById('view-title');
+            const pagination = document.getElementById('pagination-controls');
+
+            // UI Reset
+            filter.style.display = 'none';
+            metrics.style.display = 'none';
+            search.style.display = 'none';
+            pagination.style.display = 'none';
+
+            if (view === 'windows' || view === 'android' || view === 'trials') {
+                filter.style.display = (view === 'trials') ? 'none' : 'block';
+                metrics.style.display = 'grid';
+                search.style.display = 'flex';
+                pagination.style.display = 'flex';
+                titleEl.innerText = view.toUpperCase() + (view === 'trials' ? ' GUEST TRIALS' : ' WORKSTATION LICENSES');
+            } else if (view === 'broadcast') {
+                titleEl.innerText = 'GLOBAL BROADCAST HUB';
+            } else if (view === 'vault') {
+                titleEl.innerText = 'MASTER VAULT SNIPPETS';
+            }
+
+            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+            document.getElementById(`nav-${view}`).classList.add('active');
+
+            fetchData();
         }
 
         function updateStats() {
@@ -469,55 +510,6 @@
         function toggleSidebar() {
             document.getElementById('sidebar').classList.toggle('active');
         }
-
-        function switchView(view) {
-            currentView = view;
-            currentPage = 1;
-            
-            // Close sidebar on mobile
-            if (window.innerWidth <= 900) {
-                document.getElementById('sidebar').classList.remove('active');
-            }
-
-            const filter = document.getElementById('status-filter');
-            const metrics = document.getElementById('metrics-grid');
-            const search = document.querySelector('.search-container');
-            const titleEl = document.getElementById('view-title');
-
-            if (view === 'windows' || view === 'android' || view === 'trials') {
-                filter.style.display = (view === 'trials') ? 'none' : 'block';
-                metrics.style.display = 'grid';
-                search.style.display = 'flex';
-                titleEl.innerText = view.toUpperCase() + (view === 'trials' ? ' GUEST TRIALS' : ' WORKSTATION LICENSES');
-            } else if (view === 'broadcast') {
-                filter.style.display = 'none';
-                metrics.style.display = 'none';
-                search.style.display = 'none';
-                titleEl.innerText = 'GLOBAL BROADCAST HUB';
-            } else if (view === 'vault') {
-                filter.style.display = 'none';
-                metrics.style.display = 'none';
-                search.style.display = 'none';
-                titleEl.innerText = 'MASTER VAULT SNIPPETS';
-            }
-
-            const pagination = document.getElementById('pagination-controls');
-            if (view === 'windows' || view === 'android' || view === 'trials') {
-                pagination.style.display = 'flex';
-            } else {
-                pagination.style.display = 'none';
-            }
-
-            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
-            document.getElementById(`nav-${view}`).classList.add('active');
-
-            if (view === 'vault' || view === 'broadcast') {
-                fetchData();
-            } else {
-                fetchData().then(() => renderTable());
-            }
-        }
-
         async function revokeLicense(id) {
             if(!confirm(`PERMANENTLY DELETE key ${id}?`)) return;
             await fetch(`${FB_URL}/licenses/${id}.json?auth=${FB_SECRET}`, { method: 'DELETE' });
