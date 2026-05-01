@@ -544,6 +544,41 @@
         function toggleSidebar() {
             document.getElementById('sidebar').classList.toggle('active');
         }
+
+        // --- KEYBOARD SHORTCUTS ---
+        window.addEventListener('keydown', async (e) => {
+            // Ctrl + S: Save Vault
+            if (e.ctrlKey && e.key === 's') {
+                e.preventDefault();
+                if (currentView === 'vault' && activeSnippetId) saveVault();
+            }
+            
+            // Alt + N: New Entry
+            if (e.altKey && e.key.toLowerCase() === 'n') {
+                e.preventDefault();
+                if (currentView === 'vault') addSnippet();
+                else if (['windows', 'android', 'trials'].includes(currentView)) openModal();
+            }
+
+            // Alt + R: Sync Now
+            if (e.altKey && e.key.toLowerCase() === 'r') {
+                e.preventDefault();
+                fetchData(true);
+            }
+
+            // Ctrl + F: Focus Search
+            if (e.ctrlKey && e.key === 'f') {
+                e.preventDefault();
+                document.getElementById('search')?.focus();
+            }
+
+            // Alt + 1-5: Switch Views
+            const views = ['windows', 'android', 'trials', 'broadcast', 'vault'];
+            if (e.altKey && e.key >= '1' && e.key <= '5') {
+                e.preventDefault();
+                switchView(views[parseInt(e.key) - 1]);
+            }
+        });
         let vaultSnippets = [];
         let activeSnippetId = null;
 
