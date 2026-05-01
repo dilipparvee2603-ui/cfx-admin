@@ -516,6 +516,129 @@
         function toggleSidebar() {
             document.getElementById('sidebar').classList.toggle('active');
         }
+        // --- VAULT LOGIC ---
+        let vaultSnippets = [];
+        let activeSnippet = null;
+
+        async function fetchVault() {
+            const token = document.getElementById('bc-token').value;
+            const vaultGistId = localStorage.getItem('cfx_vault_gistid');
+            const container = document.getElementById('table-container');
+            
+            if (!token || !vaultGistId) {
+                container.innerHTML = `
+                    <div style="padding: 40px; text-align: center; background: var(--glass); border-radius: 20px;">
+                        <i data-lucide="shield-alert" style="width: 48px; height: 48px; color: var(--accent); margin-bottom: 20px;"></i>
+                        <h2 style="font-family: 'Outfit'; margin-bottom: 10px;">VAULT LOCKED</h2>
+                        <p style="color: var(--text-dim); font-size: 13px; margin-bottom: 20px;">Set Gist ID & Token in Broadcast hub first.</p>
+                        <input type="text" id="vault-gist-setup" placeholder="Paste Private Gist ID" style="background: var(--bg); border: 1px solid var(--border); padding: 15px; border-radius: 10px; color: #fff; width: 300px; outline: none; margin-bottom: 20px;"><br>
+                        <button class="btn" onclick="setupVault()">INITIALIZE VAULT</button>
+                    </div>
+                `;
+                lucide.createIcons();
+                return;
+            }
+
+            container.innerHTML = '<div class="loading">DECRYPTING VAULT...</div>';
+
+            try {
+                const res = await fetch(`https://api.github.com/gists/${vaultGistId}?t=${Date.now()}`, {
+                    headers: { 'Authorization': `token ${token}` }
+                });
+                const data = await res.json();
+                vaultSnippets = (data.files && data.files['vault.json']) ? JSON.parse(data.files['vault.json'].content) : [];
+                renderVault();
+            } catch (e) {
+                console.error("Vault Fetch Error:", e);
+                container.innerHTML = '<div class="loading" style="color: var(--accent);">VAULT FETCH FAILED</div>';
+            }
+        }
+
+        function setupVault() {
+            const id = document.getElementById('vault-gist-setup').value;
+            if(id) {
+                localStorage.setItem('cfx_vault_gistid', id);
+                fetchVault();
+            }
+        }
+
+        function renderVault() {
+            const container = document.getElementById('table-container');
+            let html = `
+                <div style="display: grid; grid-template-columns: 320px 1fr; gap: 25px; height: calc(100vh - 220px);">
+                    <div style="background: var(--panel); border-radius: 24px; border: 1px solid var(--border); display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 15px 40px rgba(0,0,0,0.3);">
+                        <div style="padding: 25px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.01);">
+                            <div style="font-size: 10px; font-weight: 900; letter-spacing: 2px; color: var(--text-dim);">SAVED SNIPPETS</div>
+                            <button class="btn" style="padding: 8px 12px; font-size: 14px; background: var(--accent); color: #fff; border: none;" onclick="addSnippet()">+</button>
+                        </div>
+                        <div style="flex: 1; overflow-y: auto; padding: 15px;">
+            `;
+
+            vaultSnippets.forEach((s, idx) => {
+                const isActive = activeSnippet === idx;
+                html += `
+                    <div onclick="editSnippet(${idx})" style="padding: 20px; border-radius: 16px; margin-bottom: 12px; cursor: pointer; background: ${isActive ? 'linear-gradient(90deg, rgba(255,45,85,0.08) 0%, rgba(255,45,85,0.02) 100%)' : 'rgba(255,255,255,0.01)'}; border: 1px solid ${isActive ? 'var(--accent)' : 'var(--border)'}; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); position: relative; overflow: hidden;">
+                        <div style="font-size: 14px; font-weight: 700; color: ${isActive ? '#fff' : 'var(--text)'}; margin-bottom: 6px;">${s.title || 'Untitled'}</div>
+                        <div style="font-size: 11px; color: var(--text-dim); font-family: 'JetBrains Mono', monospace; opacity: 0.7; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${s.content || '...'}</div>
+                        ${isActive ? '<div style="position: absolute; left: 0; top: 0; height: 100%; width: 4px; background: var(--accent); box-shadow: 2px 0 10px var(--accent);"></div>' : ''}
+                    </div>
+                `;
+            });
+
+            html += `</div></div><div id="snippet-editor" style="background: var(--panel); border-radius: 24px; border: 1px solid var(--border); padding: 35px; display: flex; flex-direction: column; box-shadow: 0 15px 40px rgba(0,0,0,0.3);">
+                <div style="text-align: center; padding: 100px 40px; color: var(--text-dim);">
+                    <i data-lucide="file-key" style="width: 56px; height: 56px; margin-bottom: 25px; opacity: 0.15; color: var(--accent);"></i>
+                    <h3 style="font-family: 'Outfit'; color: #fff; margin-bottom: 10px;">VAULT DECRYPTED</h3>
+                    <p style="font-size: 13px; max-width: 300px; margin: 0 auto; line-height: 1.6;">Select a snippet from the left to edit.</p>
+                </div>
+            </div></div>`;
+            container.innerHTML = html;
+            lucide.createIcons();
+        }
+
+        function editSnippet(idx) {
+            activeSnippet = idx;
+            const s = vaultSnippets[idx];
+            document.getElementById('snippet-editor').innerHTML = `
+                <input type="text" id="edit-title" value="${s.title}" style="background: transparent; border: none; color: #fff; font-size: 24px; font-family: 'Outfit'; font-weight: 900; margin-bottom: 20px; width: 100%; outline: none;" placeholder="Snippet Title">
+                <textarea id="edit-content" style="flex: 1; background: var(--bg); border: 1px solid var(--border); padding: 20px; border-radius: 15px; color: #fff; font-family: 'JetBrains Mono', monospace; font-size: 13px; outline: none; resize: none;" placeholder="Content...">${s.content}</textarea>
+                <div style="margin-top: 25px; display: flex; justify-content: flex-end; gap: 15px;">
+                    <button class="btn btn-danger" onclick="deleteSnippet(${idx})">DELETE</button>
+                    <button class="btn" style="background: var(--accent); color: #fff; border: none;" onclick="saveVault()">SAVE VAULT</button>
+                </div>
+            `;
+            renderVault();
+        }
+
+        function addSnippet() {
+            vaultSnippets.unshift({ title: 'New Snippet', content: '' });
+            editSnippet(0);
+        }
+
+        async function deleteSnippet(idx) {
+            if(!confirm("DELETE PERMANENTLY?")) return;
+            vaultSnippets.splice(idx, 1);
+            activeSnippet = null;
+            await saveVault();
+        }
+
+        async function saveVault() {
+            const token = document.getElementById('bc-token').value;
+            const vaultGistId = localStorage.getItem('cfx_vault_gistid');
+            if(activeSnippet !== null) {
+                vaultSnippets[activeSnippet].title = document.getElementById('edit-title').value;
+                vaultSnippets[activeSnippet].content = document.getElementById('edit-content').value;
+            }
+            try {
+                await fetch(`https://api.github.com/gists/${vaultGistId}`, {
+                    method: 'PATCH',
+                    headers: { 'Authorization': `token ${token}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ files: { 'vault.json': { content: JSON.stringify(vaultSnippets, null, 2) } } })
+                });
+                renderVault();
+            } catch (e) { alert("SAVE FAILED"); }
+        }
+
         async function revokeLicense(id) {
             if(!confirm(`PERMANENTLY DELETE key ${id}?`)) return;
             await fetch(`${FB_URL}/licenses/${id}.json?auth=${FB_SECRET}`, { method: 'DELETE' });
