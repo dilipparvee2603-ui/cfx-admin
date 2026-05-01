@@ -198,18 +198,6 @@
         .form-group label { display: block; font-size: 11px; font-weight: 800; color: var(--text-dim); margin-bottom: 8px; text-transform: uppercase; }
         .form-group input { width: 100%; background: var(--bg); border: 1px solid var(--border); padding: 12px; border-radius: 10px; color: #fff; outline: none; }
 
-        /* --- ACTIVITY LOG --- */
-        .terminal-panel { background: #000; border: 1px solid var(--border); border-radius: 16px; padding: 20px; font-family: var(--font-mono); font-size: 11px; margin-top: 20px; }
-        .terminal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 10px; }
-        .terminal-title { font-size: 10px; font-weight: 900; color: var(--text-muted); letter-spacing: 2px; }
-        #activity-log { height: 120px; overflow-y: auto; color: var(--text-dim); line-height: 1.6; scroll-behavior: smooth; }
-        .log-entry { margin-bottom: 4px; display: flex; gap: 10px; }
-        .log-ts { color: var(--text-muted); min-width: 80px; }
-        .log-msg { flex: 1; }
-        .log-info { color: var(--blue); }
-        .log-success { color: var(--green); }
-        .log-warn { color: var(--accent); }
-
         .loading-container { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 100px 20px; gap: 20px; }
         .loading-text { font-family: var(--font-mono); font-size: 11px; font-weight: 800; color: var(--accent); letter-spacing: 4px; text-transform: uppercase; animation: pulse 1.5s infinite; }
         .loading-bar { width: 120px; height: 2px; background: var(--border); position: relative; overflow: hidden; border-radius: 2px; }
@@ -312,16 +300,6 @@
                         </div>
                     </div>
                 </div>
-
-                <div class="terminal-panel">
-                    <div class="terminal-header">
-                        <div class="terminal-title">SYSTEM ACTIVITY LOG</div>
-                        <div style="display:flex;gap:6px;"><div style="width:6px;height:6px;border-radius:50%;background:#ff5f56"></div><div style="width:6px;height:6px;border-radius:50%;background:#ffbd2e"></div><div style="width:6px;height:6px;border-radius:50%;background:#27c93f"></div></div>
-                    </div>
-                    <div id="activity-log">
-                        <div class="log-entry"><span class="log-ts">[BOOT]</span><span class="log-msg">Command deck initialized. Ready for operations.</span></div>
-                    </div>
-                </div>
             </div>
 
             <!-- Sticky Pagination Footer -->
@@ -354,14 +332,6 @@
         const FB_URL = "https://cfx-scenepack-creator-default-rtdb.firebaseio.com";
         const FB_SECRET = "YH6mWhfrTk0SuHuLUOoX81xgJw5VxM91B3JdFiTf";
         
-        // --- PRODUCTION CREDENTIALS ---
-        const GIST_CONFIG = {
-            GH_TOKEN: "ghp_O6Gk7o2pTz8uY9rI1vX3w2qL5mK8nH4jA0sB", // Update token if necessary
-            VAULT_ID: "8f30e36241b7d4124629a7c0c7ea8259",
-            DESKTOP_ID: "c7f92b675313e66440d2b7221ddb34d9",
-            MOBILE_ID: "1fe63514b3ecd44ee78204544e42fcf9"
-        };
-        
         let allLicenses = [];
         let allTrials = [];
         let currentView = 'windows';
@@ -369,16 +339,6 @@
         const PAGE_SIZE = 15;
 
         // UI Helpers
-        function logAction(msg, type = 'info') {
-            const log = document.getElementById('activity-log');
-            const ts = new Date().toLocaleTimeString('en-GB', { hour12: false });
-            const entry = document.createElement('div');
-            entry.className = 'log-entry';
-            entry.innerHTML = `<span class="log-ts">[${ts}]</span><span class="log-msg log-${type}">${msg.toUpperCase()}</span>`;
-            log.appendChild(entry);
-            log.scrollTop = log.scrollHeight;
-        }
-
         function toggleSidebar() {
             document.getElementById('sidebar').classList.toggle('open');
             document.getElementById('sidebar-overlay').classList.toggle('visible');
@@ -426,11 +386,7 @@
                 allTrials = tData ? Object.keys(tData).map(k => ({ id: k, ...tData[k] })) : [];
                 updateStats();
                 renderTable();
-                logAction("Cloud synchronization successful", "success");
-            } catch (err) { 
-                container.innerHTML = `<div class="loading" style="color: var(--accent);">CLOUD ERROR</div>`; 
-                logAction("Cloud synchronization failed", "warn");
-            }
+            } catch (err) { container.innerHTML = `<div class="loading" style="color: var(--accent);">CLOUD ERROR</div>`; }
         }
 
         function renderTable() {
@@ -502,14 +458,14 @@
             closeModal(); fetchData(true);
         }
 
-        async function deleteLicense(id) { if(confirm("DELETE?")) { await fetch(`${FB_URL}/licenses/${id}.json?auth=${FB_SECRET}`, { method: 'DELETE' }); logAction(`Deleted license: ${id}`, 'warn'); fetchData(true); } }
-        async function wipeTrial(id) { if(confirm("WIPE?")) { await fetch(`${FB_URL}/trials/${id}.json?auth=${FB_SECRET}`, { method: 'DELETE' }); logAction(`Wiped trial: ${id}`, 'warn'); fetchData(true); } }
-        async function flushAllKeys() { if(prompt("Type 'FLUSH':") === 'FLUSH') { await fetch(`${FB_URL}/licenses.json?auth=${FB_SECRET}`, { method: 'DELETE' }); logAction(`SYSTEM PURGE INITIATED`, 'warn'); fetchData(true); } }
+        async function deleteLicense(id) { if(confirm("DELETE?")) { await fetch(`${FB_URL}/licenses/${id}.json?auth=${FB_SECRET}`, { method: 'DELETE' }); fetchData(true); } }
+        async function wipeTrial(id) { if(confirm("WIPE?")) { await fetch(`${FB_URL}/trials/${id}.json?auth=${FB_SECRET}`, { method: 'DELETE' }); fetchData(true); } }
+        async function flushAllKeys() { if(prompt("Type 'FLUSH':") === 'FLUSH') { await fetch(`${FB_URL}/licenses.json?auth=${FB_SECRET}`, { method: 'DELETE' }); fetchData(true); } }
 
         // --- VAULT ---
         let vaultSnippets = []; let activeSnippetId = null;
         async function fetchVault() {
-            const token = GIST_CONFIG.GH_TOKEN, gistId = GIST_CONFIG.VAULT_ID;
+            const token = localStorage.getItem('cfx_github_token'), gistId = localStorage.getItem('cfx_vault_gistid');
             if(!token || !gistId) return renderVaultSetup();
             const res = await fetch(`https://api.github.com/gists/${gistId}?t=${Date.now()}`, { headers: { 'Authorization': `token ${token}` } });
             const data = await res.json();
@@ -533,9 +489,8 @@
         async function saveVault() {
             const s = vaultSnippets.find(x => x.id === activeSnippetId);
             s.title = document.getElementById('v-title').value; s.content = document.getElementById('v-content').value;
-            const token = GIST_CONFIG.GH_TOKEN, gistId = GIST_CONFIG.VAULT_ID;
+            const token = localStorage.getItem('cfx_github_token'), gistId = localStorage.getItem('cfx_vault_gistid');
             await fetch(`https://api.github.com/gists/${gistId}`, { method: 'PATCH', headers: { 'Authorization': `token ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ files: { 'vault.json': { content: JSON.stringify(vaultSnippets, null, 2) } } }) });
-            logAction(`Vault snippet updated: ${activeSnippetId}`, 'success');
             fetchVault();
         }
 
@@ -556,16 +511,13 @@
 
         async function loadTargetConfig() {
             const target = document.getElementById('bc-target').value;
-            document.getElementById('set-token').value = GIST_CONFIG.GH_TOKEN;
-            document.getElementById('set-gist').value = target === 'mobile' ? GIST_CONFIG.MOBILE_ID : GIST_CONFIG.DESKTOP_ID;
+            document.getElementById('set-token').value = localStorage.getItem('cfx_github_token') || '';
+            document.getElementById('set-gist').value = localStorage.getItem(`cfx_gist_${target}`) || '';
             await fetchGistContent();
         }
 
         async function fetchGistContent() {
-            const target = document.getElementById('bc-target').value, 
-                  token = GIST_CONFIG.GH_TOKEN, 
-                  gistId = target === 'mobile' ? GIST_CONFIG.MOBILE_ID : GIST_CONFIG.DESKTOP_ID, 
-                  status = document.getElementById('bc-status');
+            const target = document.getElementById('bc-target').value, token = document.getElementById('set-token').value, gistId = document.getElementById('set-gist').value, status = document.getElementById('bc-status');
             if (!token || !gistId) return; if (status) status.innerText = "FETCHING...";
             try {
                 const filename = target === 'mobile' ? 'gistfile2.txt' : 'gistfile1.txt';
@@ -591,28 +543,16 @@
         }
 
         async function pushBroadcast() {
-            const target = document.getElementById('bc-target').value, 
-                  token = GIST_CONFIG.GH_TOKEN, 
-                  gistId = target === 'mobile' ? GIST_CONFIG.MOBILE_ID : GIST_CONFIG.DESKTOP_ID, 
-                  msg = document.getElementById('bc-msg').value, 
-                  type = document.getElementById('bc-type').value, 
-                  rawUrl = document.getElementById('bc-url').value, 
-                  upcomingRaw = document.getElementById('bc-upcoming').value, 
-                  btn = document.getElementById('btn-push');
+            const target = document.getElementById('bc-target').value, token = document.getElementById('set-token').value, gistId = document.getElementById('set-gist').value, msg = document.getElementById('bc-msg').value, type = document.getElementById('bc-type').value, rawUrl = document.getElementById('bc-url').value, upcomingRaw = document.getElementById('bc-upcoming').value, btn = document.getElementById('btn-push');
             if(!token || !gistId || !msg) return alert("MISSING PARAMS"); btn.innerText = "PUSHING..."; btn.disabled = true;
             const url = (type === 'update') ? rawUrl : "";
             const payload = { version: document.getElementById('bc-version').value, message: msg, type: type, url: url, upcoming: upcomingRaw ? upcomingRaw.split(',').map(s => s.trim()).filter(s => s !== "") : [], timestamp: Math.floor(Date.now() / 1000) };
             try {
                 const filename = target === 'mobile' ? 'gistfile2.txt' : 'gistfile1.txt';
                 const res = await fetch(`https://api.github.com/gists/${gistId}`, { method: 'PATCH', headers: { 'Authorization': `token ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ files: { [filename]: { content: JSON.stringify(payload, null, 2) } } }) });
-                if(res.ok) {
-                    alert("LIVE");
-                    logAction(`Broadcast pushed: ${target.toUpperCase()}`, 'success');
-                }
-            } catch(e) { 
-                alert("FAILED"); 
-                logAction(`Broadcast failed: ${target.toUpperCase()}`, 'warn');
-            }
+                if(res.ok) alert("LIVE");
+            } catch(e) { alert("FAILED"); }
+            finally { btn.innerText = "PUSH LIVE"; btn.disabled = false; }
         }
 
         fetchData(); lucide.createIcons();
