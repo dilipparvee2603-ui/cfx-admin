@@ -266,107 +266,111 @@
 </head>
 <body>
     <div class="sidebar" id="sidebar">
-        <div class="logo-area">
-            <div class="logo"><i data-lucide="shield-check" style="color: var(--accent); width: 24px; height: 24px;"></i> CFX<span>STUDIOS</span></div>
-            <div style="font-size: 9px; color: var(--text-dim); font-weight: 950; margin-top: 5px; letter-spacing: 2px;">COMMAND CENTER</div>
-        </div>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <div class="sidebar">
+            <div class="brand">
+                <div class="brand-logo"><i data-lucide="zap" style="width: 18px; color: #fff;"></i></div>
+                <div class="brand-name">CFX STUDIOS</div>
+            </div>
 
-        <div class="nav-group">
-            <div class="nav-label">Platforms</div>
-            <div class="nav-item active" id="nav-windows" onclick="switchView('windows')">
-                <i data-lucide="monitor"></i> WINDOWS
+            <div class="nav-group">
+                <div class="nav-label">Licenses</div>
+                <div class="nav-item active" id="nav-windows" onclick="switchView('windows')">
+                    <i data-lucide="monitor"></i> <span>WINDOWS</span>
+                </div>
+                <div class="nav-item" id="nav-android" onclick="switchView('android')">
+                    <i data-lucide="smartphone"></i> <span>ANDROID</span>
+                </div>
             </div>
-            <div class="nav-item" id="nav-android" onclick="switchView('android')">
-                <i data-lucide="smartphone"></i> ANDROID
-            </div>
-        </div>
 
-        <div class="nav-group">
-            <div class="nav-label">Monitoring</div>
-            <div class="nav-item" id="nav-trials" onclick="switchView('trials')">
-                <i data-lucide="clock"></i> GUEST TRIALS
+            <div class="nav-group">
+                <div class="nav-label">Monitoring</div>
+                <div class="nav-item" id="nav-trials" onclick="switchView('trials')">
+                    <i data-lucide="clock"></i> <span>GUEST TRIALS</span>
+                </div>
+                <div class="nav-item" id="nav-broadcast" onclick="switchView('broadcast')">
+                    <i data-lucide="radio"></i> <span>BROADCAST</span>
+                </div>
+                <div class="nav-item" id="nav-vault" onclick="switchView('vault')">
+                    <i data-lucide="lock"></i> <span>MASTER VAULT</span>
+                </div>
             </div>
-            <div class="nav-item" id="nav-broadcast" onclick="switchView('broadcast')">
-                <i data-lucide="radio"></i> BROADCAST
-            </div>
-            <div class="nav-item" id="nav-vault" onclick="switchView('vault')">
-                <i data-lucide="lock"></i> MASTER VAULT
-            </div>
-        </div>
 
-        <div class="nav-group" style="margin-top: auto; padding-bottom: 20px;">
-            <div class="nav-label">System</div>
-            <div class="nav-item btn-danger" onclick="flushAllKeys()">
-                <i data-lucide="trash-2"></i> MASTER FLUSH
-            </div>
-        </div>
-    </div>
-
-    <div class="main-wrapper">
-        <header>
-            <div class="header-title" id="view-title">WINDOWS WORKSTATION LICENSES</div>
-            <div class="header-actions">
-                <button class="btn btn-accent" style="background: var(--blue); box-shadow: 0 10px 20px var(--blue-glow);" onclick="fetchData(true)">
-                    <i data-lucide="refresh-cw" style="width: 14px; height: 14px;"></i> SYNC NOW
+            <div style="margin-top: auto;">
+                <button class="btn btn-ghost" style="width: 100%; justify-content: flex-start; padding: 12px;" onclick="flushAllKeys()">
+                    <i data-lucide="power"></i> <span>FLUSH DATA</span>
                 </button>
-                <select id="status-filter" class="search-box" style="width: 150px;" onchange="filterData()">
-                    <option value="all">ALL STATUS</option>
-                    <option value="activated">ACTIVATED</option>
-                    <option value="not-activated">AVAILABLE</option>
-                </select>
-                <input type="text" class="search-box" id="search" placeholder="Search keys or users..." oninput="filterData()">
-                <div style="width: 40px; height: 40px; border-radius: 50%; background: var(--accent); display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 12px; box-shadow: 0 0 15px var(--accent-glow);">AD</div>
             </div>
-        </header>
+        </div>
 
-        <div class="content-area">
+        <!-- Main Workspace -->
+        <div class="main-deck">
+            <div class="header">
+<div class="title-area">
+                    <h1 id="view-title">COMMAND CENTER</h1>
+                    <p>Production environment management interface.</p>
+                </div>
+                <div class="controls">
+                    <div class="search-container">
+                        <i data-lucide="search"></i>
+                        <input type="text" id="search" placeholder="Search licenses..." oninput="filterData()">
+                    </div>
+                    <select id="status-filter" onchange="filterData()">
+                        <option value="all">ALL STATUS</option>
+                        <option value="activated">ACTIVATED</option>
+                        <option value="available">AVAILABLE</option>
+                    </select>
+                    <button class="btn btn-accent" onclick="fetchData(true)">
+                        <i data-lucide="refresh-cw"></i> SYNC NOW
+                    </button>
+                </div>
+            </div>
+
+            <!-- Global Metrics -->
             <div class="metrics-grid" id="metrics-grid">
                 <div class="metric-card">
-                    <div class="metric-label">Total Workstations</div>
-                    <div class="metric-value" id="stat-total-keys">--</div>
+                    <div class="metric-label">Total Pipeline</div>
+                    <div class="metric-value" id="stat-total-keys">0</div>
                 </div>
                 <div class="metric-card">
-                    <div class="metric-label">Active Licenses</div>
-                    <div class="metric-value" id="stat-activated" style="color: var(--blue);">--</div>
+                    <div class="metric-label">Activated</div>
+                    <div class="metric-value" style="color: var(--blue)" id="stat-activated">0</div>
                 </div>
                 <div class="metric-card">
-                    <div class="metric-label">Available Slots</div>
-                    <div class="metric-value" id="stat-remaining" style="color: #10b981;">--</div>
+                    <div class="metric-label">Remaining</div>
+                    <div class="metric-value" style="color: var(--text-dim)" id="stat-remaining">0</div>
                 </div>
                 <div class="metric-card">
-                    <div class="metric-label">Trial Sessions</div>
-                    <div class="metric-value" id="stat-active-trials" style="color: var(--accent);">--</div>
+                    <div class="metric-label">Guest Trials</div>
+                    <div class="metric-value" style="color: var(--accent)" id="stat-active-trials">0</div>
                 </div>
             </div>
 
+            <!-- Content Area -->
             <div class="table-panel">
                 <div id="table-container">
                     <div class="loading">INITIALIZING COMMAND DECK...</div>
                 </div>
                 <div class="pagination" id="pagination-controls" style="display: none;">
-                    <div class="page-info" id="page-info">PAGE 1 OF 1</div>
-                    <div class="page-btns" style="display: flex; gap: 10px;">
-                        <button class="btn" onclick="changePage(-1)">PREV</button>
-                        <button class="btn" onclick="changePage(1)">NEXT</button>
+                    <div id="page-info">PAGE 1 OF 1</div>
+                    <div style="display: flex; gap: 8px;">
+                        <button class="btn btn-ghost" onclick="changePage(-1)"><i data-lucide="chevron-left"></i></button>
+                        <button class="btn btn-ghost" onclick="changePage(1)"><i data-lucide="chevron-right"></i></button>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- MODAL FOR ADD/EDIT -->
-    <div id="license-modal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(10px); z-index: 2000; align-items: center; justify-content: center;">
-        <div style="background: var(--panel); width: 450px; padding: 40px; border-radius: 24px; border: 1px solid var(--border); box-shadow: 0 30px 60px rgba(0,0,0,0.5);">
-            <h2 id="modal-title" style="font-family: 'Outfit'; margin-bottom: 25px;">ADD LICENSE</h2>
-            <input type="hidden" id="edit-id">
-            
-            <div style="margin-bottom: 20px;">
-                <label style="display: block; font-size: 10px; font-weight: 900; color: var(--text-dim); margin-bottom: 10px; letter-spacing: 1px;">LICENSE KEY</label>
-                <input type="text" id="modal-key" placeholder="Enter key or leave for auto-gen" style="background: var(--bg); border: 1px solid var(--border); padding: 15px; border-radius: 10px; color: #fff; width: 100%; outline: none; font-family: 'JetBrains Mono';">
+    <!-- License Management Modal -->
+    <div class="modal-overlay" id="license-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modal-title">RESET LICENSE</h2>
+                <p style="font-size: 12px; color: var(--text-dim);">Modify license parameters in the cloud environment.</p>
             </div>
-            
-            <div style="margin-bottom: 20px;">
-                <label style="display: block; font-size: 10px; font-weight: 900; color: var(--text-dim); margin-bottom: 10px; letter-spacing: 1px;">USER EMAIL / ID</label>
+            <input type="hidden" id="edit-id">
                 <input type="text" id="modal-email" placeholder="user@example.com" style="background: var(--bg); border: 1px solid var(--border); padding: 15px; border-radius: 10px; color: #fff; width: 100%; outline: none;">
             </div>
 
