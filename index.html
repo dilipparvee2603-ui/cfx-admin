@@ -332,6 +332,10 @@
         const FB_URL = "https://cfx-scenepack-creator-default-rtdb.firebaseio.com";
         const FB_SECRET = "YH6mWhfrTk0SuHuLUOoX81xgJw5VxM91B3JdFiTf";
         
+        const GIST_VAULT = "8f30e36241b7d4124629a7c0c7ea8259";
+        const GIST_MOBILE = "1fe63514b3ecd44ee78204544e42fcf9";
+        const GIST_DESKTOP = "c7f92b675313e66440d2b7221ddb34d9";
+
         let allLicenses = [];
         let allTrials = [];
         let currentView = 'windows';
@@ -465,7 +469,7 @@
         // --- VAULT ---
         let vaultSnippets = []; let activeSnippetId = null;
         async function fetchVault() {
-            const token = localStorage.getItem('cfx_github_token'), gistId = localStorage.getItem('cfx_vault_gistid');
+            const token = localStorage.getItem('cfx_github_token'), gistId = GIST_VAULT;
             if(!token || !gistId) return renderVaultSetup();
             const res = await fetch(`https://api.github.com/gists/${gistId}?t=${Date.now()}`, { headers: { 'Authorization': `token ${token}` } });
             const data = await res.json();
@@ -489,7 +493,7 @@
         async function saveVault() {
             const s = vaultSnippets.find(x => x.id === activeSnippetId);
             s.title = document.getElementById('v-title').value; s.content = document.getElementById('v-content').value;
-            const token = localStorage.getItem('cfx_github_token'), gistId = localStorage.getItem('cfx_vault_gistid');
+            const token = localStorage.getItem('cfx_github_token'), gistId = GIST_VAULT;
             await fetch(`https://api.github.com/gists/${gistId}`, { method: 'PATCH', headers: { 'Authorization': `token ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ files: { 'vault.json': { content: JSON.stringify(vaultSnippets, null, 2) } } }) });
             fetchVault();
         }
@@ -512,12 +516,12 @@
         async function loadTargetConfig() {
             const target = document.getElementById('bc-target').value;
             document.getElementById('set-token').value = localStorage.getItem('cfx_github_token') || '';
-            document.getElementById('set-gist').value = localStorage.getItem(`cfx_gist_${target}`) || '';
+            document.getElementById('set-gist').value = (target === 'mobile' ? GIST_MOBILE : GIST_DESKTOP);
             await fetchGistContent();
         }
 
         async function fetchGistContent() {
-            const target = document.getElementById('bc-target').value, token = document.getElementById('set-token').value, gistId = document.getElementById('set-gist').value, status = document.getElementById('bc-status');
+            const target = document.getElementById('bc-target').value, token = document.getElementById('set-token').value, gistId = (target === 'mobile' ? GIST_MOBILE : GIST_DESKTOP), status = document.getElementById('bc-status');
             if (!token || !gistId) return; if (status) status.innerText = "FETCHING...";
             try {
                 const filename = target === 'mobile' ? 'gistfile2.txt' : 'gistfile1.txt';
@@ -536,14 +540,12 @@
         }
 
         function saveAdminCreds() {
-            const target = document.getElementById('bc-target').value;
             localStorage.setItem('cfx_github_token', document.getElementById('set-token').value);
-            localStorage.setItem(`cfx_gist_${target}`, document.getElementById('set-gist').value);
             alert("CONFIG SAVED");
         }
 
         async function pushBroadcast() {
-            const target = document.getElementById('bc-target').value, token = document.getElementById('set-token').value, gistId = document.getElementById('set-gist').value, msg = document.getElementById('bc-msg').value, type = document.getElementById('bc-type').value, rawUrl = document.getElementById('bc-url').value, upcomingRaw = document.getElementById('bc-upcoming').value, btn = document.getElementById('btn-push');
+            const target = document.getElementById('bc-target').value, token = document.getElementById('set-token').value, gistId = (target === 'mobile' ? GIST_MOBILE : GIST_DESKTOP), msg = document.getElementById('bc-msg').value, type = document.getElementById('bc-type').value, rawUrl = document.getElementById('bc-url').value, upcomingRaw = document.getElementById('bc-upcoming').value, btn = document.getElementById('btn-push');
             if(!token || !gistId || !msg) return alert("MISSING PARAMS"); btn.innerText = "PUSHING..."; btn.disabled = true;
             const url = (type === 'update') ? rawUrl : "";
             const payload = { version: document.getElementById('bc-version').value, message: msg, type: type, url: url, upcoming: upcomingRaw ? upcomingRaw.split(',').map(s => s.trim()).filter(s => s !== "") : [], timestamp: Math.floor(Date.now() / 1000) };
