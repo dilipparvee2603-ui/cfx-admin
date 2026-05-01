@@ -576,21 +576,36 @@
             const container = document.getElementById('table-container');
             const searchQuery = document.getElementById('vault-search')?.value.toLowerCase() || '';
             
-            let html = `
-                <div style="display: grid; grid-template-columns: 320px 1fr; gap: 25px; height: calc(100vh - 220px);">
-                    <div style="background: var(--panel); border-radius: 24px; border: 1px solid var(--border); display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 15px 40px rgba(0,0,0,0.3);">
-                        <div style="padding: 25px; border-bottom: 1px solid var(--border); background: rgba(255,255,255,0.01);">
-                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                                <div style="display: flex; align-items: center; gap: 8px;">
-                                    <div style="font-size: 10px; font-weight: 900; letter-spacing: 2px; color: var(--text-dim);">PASTEBIN VAULT</div>
-                                    <button onclick="resetVault()" title="Reset Connection" style="background: transparent; border: none; cursor: pointer; display: flex; align-items: center; opacity: 0.3; color: var(--text-dim);"><i data-lucide="refresh-ccw" style="width: 10px; height: 10px;"></i></button>
+            // Initial shell if not present
+            if (!container.querySelector('#vault-list')) {
+                container.innerHTML = `
+                    <div style="display: grid; grid-template-columns: 320px 1fr; gap: 25px; height: calc(100vh - 220px);">
+                        <div style="background: var(--panel); border-radius: 24px; border: 1px solid var(--border); display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 15px 40px rgba(0,0,0,0.3);">
+                            <div style="padding: 25px; border-bottom: 1px solid var(--border); background: rgba(255,255,255,0.01);">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                                    <div style="display: flex; align-items: center; gap: 8px;">
+                                        <div style="font-size: 10px; font-weight: 900; letter-spacing: 2px; color: var(--text-dim);">PASTEBIN VAULT</div>
+                                        <button onclick="resetVault()" title="Reset Connection" style="background: transparent; border: none; cursor: pointer; display: flex; align-items: center; opacity: 0.3; color: var(--text-dim);"><i data-lucide="refresh-ccw" style="width: 10px; height: 10px;"></i></button>
+                                    </div>
+                                    <button class="btn" style="padding: 8px 12px; font-size: 14px; background: var(--accent); color: #fff; border: none;" onclick="addSnippet()">NEW PASTE</button>
                                 </div>
-                                <button class="btn" style="padding: 8px 12px; font-size: 14px; background: var(--accent); color: #fff; border: none;" onclick="addSnippet()">NEW PASTE</button>
+                                <input type="text" id="vault-search" placeholder="Search pastes..." oninput="renderVault()" style="width: 100%; background: var(--bg); border: 1px solid var(--border); padding: 10px; border-radius: 10px; color: #fff; font-size: 12px; outline: none;">
                             </div>
-                            <input type="text" id="vault-search" placeholder="Search pastes..." oninput="renderVault()" style="width: 100%; background: var(--bg); border: 1px solid var(--border); padding: 10px; border-radius: 10px; color: #fff; font-size: 12px; outline: none;">
+                            <div id="vault-list" style="flex: 1; overflow-y: auto; padding: 15px;"></div>
                         </div>
-                        <div style="flex: 1; overflow-y: auto; padding: 15px;">
-            `;
+                        <div id="snippet-editor" style="background: var(--panel); border-radius: 24px; border: 1px solid var(--border); padding: 35px; display: flex; flex-direction: column; box-shadow: 0 15px 40px rgba(0,0,0,0.3);">
+                            <div style="text-align: center; padding: 100px 40px; color: var(--text-dim);">
+                                <i data-lucide="clipboard-copy" style="width: 56px; height: 56px; margin-bottom: 25px; opacity: 0.15; color: var(--accent);"></i>
+                                <h3 style="font-family: 'Outfit'; color: #fff; margin-bottom: 10px;">PASTEBIN READY</h3>
+                                <p style="font-size: 13px; max-width: 300px; margin: 0 auto; line-height: 1.6;">Select a paste from the left or create a new one to start storing data.</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            const listContainer = document.getElementById('vault-list');
+            let html = '';
 
             const filtered = vaultSnippets.filter(s => 
                 (s.title || '').toLowerCase().includes(searchQuery) || 
@@ -598,7 +613,7 @@
             );
 
             if (filtered.length === 0) {
-                html += `<div style="text-align: center; color: var(--text-dim); padding: 40px; font-size: 12px; opacity: 0.5;">NO PASTES MATCHING...</div>`;
+                html = `<div style="text-align: center; color: var(--text-dim); padding: 40px; font-size: 12px; opacity: 0.5;">NO PASTES MATCHING...</div>`;
             }
 
             filtered.forEach((s) => {
@@ -613,16 +628,8 @@
                 `;
             });
 
-            html += `</div></div><div id="snippet-editor" style="background: var(--panel); border-radius: 24px; border: 1px solid var(--border); padding: 35px; display: flex; flex-direction: column; box-shadow: 0 15px 40px rgba(0,0,0,0.3);">
-                <div style="text-align: center; padding: 100px 40px; color: var(--text-dim);">
-                    <i data-lucide="clipboard-copy" style="width: 56px; height: 56px; margin-bottom: 25px; opacity: 0.15; color: var(--accent);"></i>
-                    <h3 style="font-family: 'Outfit'; color: #fff; margin-bottom: 10px;">PASTEBIN READY</h3>
-                    <p style="font-size: 13px; max-width: 300px; margin: 0 auto; line-height: 1.6;">Select a paste from the left or create a new one to start storing data.</p>
-                </div>
-            </div></div>`;
-            container.innerHTML = html;
+            listContainer.innerHTML = html;
             lucide.createIcons();
-            if(document.getElementById('vault-search')) document.getElementById('vault-search').value = searchQuery;
         }
 
         function editSnippet(idx) {
