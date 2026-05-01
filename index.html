@@ -4,276 +4,115 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CFX Studios | Command Center</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=Outfit:wght@900&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
-    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;900&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg: #030407;
-            --panel: #0a0b14;
-            --sidebar: #05060b;
+            --bg: #050505;
+            --sidebar: #0a0a0a;
+            --surface: #0f0f0f;
+            --surface-hover: #141414;
+            --surface-active: #1a1a1a;
             --accent: #ff2d55;
-            --accent-glow: rgba(255, 45, 85, 0.4);
-            --blue: #3b82f6;
-            --blue-glow: rgba(59, 130, 246, 0.3);
+            --accent-glow: rgba(255, 45, 85, 0.35);
+            --accent-muted: rgba(255, 45, 85, 0.1);
+            --border: rgba(255, 255, 255, 0.06);
+            --border-hover: rgba(255, 255, 255, 0.12);
             --text: #ffffff;
-            --text-dim: #8a8fb5;
-            --border: #1e2230;
-            --glass: rgba(255, 255, 255, 0.02);
-            --font-main: 'Inter', sans-serif;
-            --font-head: 'Outfit', sans-serif;
+            --text-dim: #a0a0a0;
+            --text-muted: #666666;
+            --blue: #3b82f6;
+            --green: #10b981;
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 24px;
+            --font-main: 'Outfit', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+            --shadow: 0 10px 40px rgba(0,0,0,0.5);
+            --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-font-smoothing: antialiased; }
-        body { 
-            background-color: var(--bg); 
-            color: var(--text); 
-            font-family: var(--font-main); 
-            display: flex;
-            height: 100vh;
-            width: 100vw;
-            overflow: hidden;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: var(--bg); color: var(--text); font-family: var(--font-main); overflow: hidden; height: 100vh; -webkit-font-smoothing: antialiased; }
+
+        .app-container { display: grid; grid-template-columns: 280px 1fr; height: 100vh; }
 
         /* --- SIDEBAR --- */
-        .sidebar {
-            width: 280px;
-            min-width: 280px;
-            background: var(--sidebar);
-            border-right: 1px solid var(--border);
-            display: flex;
-            flex-direction: column;
-            padding: 40px 0;
-            z-index: 100;
-        }
+        .sidebar { background: var(--sidebar); border-right: 1px solid var(--border); padding: 40px 20px; display: flex; flex-direction: column; gap: 40px; z-index: 100; }
+        .brand { display: flex; align-items: center; gap: 15px; padding: 0 10px; }
+        .brand-logo { width: 32px; height: 32px; background: var(--accent); border-radius: 8px; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 20px var(--accent-muted); }
+        .brand-name { font-size: 14px; font-weight: 900; letter-spacing: 2px; }
 
-        .logo-area { padding: 0 40px; margin-bottom: 50px; }
-        .logo {
-            font-family: var(--font-head);
-            font-weight: 900;
-            font-size: 22px;
-            letter-spacing: 2px;
-            color: var(--text);
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        .logo span { color: var(--accent); text-shadow: 0 0 20px var(--accent-glow); }
+        .nav-group { display: flex; flex-direction: column; gap: 4px; }
+        .nav-label { font-size: 10px; font-weight: 800; color: var(--text-muted); letter-spacing: 2px; margin-bottom: 12px; padding-left: 12px; text-transform: uppercase; }
+        .nav-item { padding: 14px 16px; border-radius: 12px; cursor: pointer; color: var(--text-dim); font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 14px; transition: var(--transition); position: relative; }
+        .nav-item i { width: 18px; height: 18px; opacity: 0.6; }
+        .nav-item:hover { color: #fff; background: var(--surface-hover); }
+        .nav-item.active { color: #fff; background: var(--surface-active); border: 1px solid var(--border); }
+        .nav-item.active i { color: var(--accent); opacity: 1; }
+        .nav-item.active::before { content: ''; position: absolute; left: -10px; top: 25%; height: 50%; width: 3px; background: var(--accent); border-radius: 0 4px 4px 0; box-shadow: 0 0 10px var(--accent); }
 
-        .nav-group { margin-bottom: 35px; }
-        .nav-label {
-            padding: 0 40px;
-            font-size: 10px;
-            font-weight: 900;
-            color: var(--text-dim);
-            letter-spacing: 3px;
-            margin-bottom: 15px;
-            text-transform: uppercase;
-        }
+        /* --- MAIN DECK --- */
+        .main-deck { padding: 40px; overflow-y: auto; display: flex; flex-direction: column; }
+        .header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 40px; }
+        .header h1 { font-size: 32px; font-weight: 900; letter-spacing: -1px; margin-bottom: 4px; }
+        .header p { font-size: 14px; color: var(--text-dim); font-weight: 500; }
+        .controls { display: flex; gap: 15px; align-items: center; }
 
-        .nav-item {
-            padding: 16px 40px;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            cursor: pointer;
-            transition: 0.3s;
-            font-size: 13px;
-            font-weight: 700;
-            color: var(--text-dim);
-            position: relative;
-        }
-        .nav-item i { width: 18px; height: 18px; opacity: 0.4; }
-        .nav-item:hover { color: #fff; background: rgba(255, 255, 255, 0.01); }
-        .nav-item.active { 
-            color: #fff; 
-            background: linear-gradient(90deg, rgba(255, 45, 85, 0.1) 0%, transparent 100%); 
-        }
-        .nav-item.active i { color: var(--accent); opacity: 1; filter: drop-shadow(0 0 8px var(--accent-glow)); }
-        .nav-item.active::after {
-            content: '';
-            position: absolute; left: 0; top: 20%; height: 60%; width: 3px;
-            background: var(--accent); border-radius: 0 4px 4px 0; box-shadow: 0 0 15px var(--accent);
-        }
+        .search-container { position: relative; }
+        .search-container i { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: var(--text-muted); width: 14px; }
+        .search-container input { padding-left: 40px; width: 300px; background: var(--surface); border: 1px solid var(--border); padding: 12px 15px 12px 40px; border-radius: 12px; color: #fff; outline: none; transition: var(--transition); }
+        .search-container input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-muted); }
 
-        /* --- WRAPPER --- */
-        .main-wrapper {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-            overflow: hidden;
-            position: relative;
-            background: radial-gradient(circle at 10% 10%, rgba(255, 45, 85, 0.02) 0%, transparent 50%);
-        }
+        select { background: var(--surface); border: 1px solid var(--border); padding: 12px 15px; border-radius: 12px; color: #fff; outline: none; cursor: pointer; }
 
-        header {
-            height: 90px;
-            min-height: 90px;
-            padding: 0 50px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid var(--border);
-            background: rgba(3, 4, 7, 0.8);
-            backdrop-filter: blur(20px);
-            z-index: 50;
-        }
+        /* --- CARDS --- */
+        .metrics-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 40px; }
+        .metric-card { background: var(--surface); border: 1px solid var(--border); padding: 25px; border-radius: 20px; transition: var(--transition); }
+        .metric-card:hover { border-color: var(--border-hover); transform: translateY(-2px); box-shadow: var(--shadow); }
+        .metric-label { font-size: 11px; font-weight: 800; color: var(--text-muted); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 10px; }
+        .metric-value { font-size: 28px; font-weight: 900; color: #fff; }
 
-        .header-title { 
-            font-family: var(--font-head);
-            font-weight: 900; font-size: 24px; 
-            letter-spacing: 1px; text-transform: uppercase;
-        }
-
-        .header-actions { display: flex; align-items: center; gap: 20px; }
-
-        .content-area {
-            flex: 1;
-            padding: 40px 50px;
-            overflow-y: auto;
-        }
-
-        /* --- COMPONENTS --- */
-        .metrics-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 25px;
-            margin-bottom: 40px;
-        }
-        .metric-card {
-            background: var(--panel);
-            border: 1px solid var(--border);
-            padding: 25px;
-            border-radius: 24px;
-            transition: 0.3s;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-        .metric-card:hover { transform: translateY(-5px); border-color: rgba(255, 255, 255, 0.1); }
-        .metric-label { font-size: 11px; font-weight: 900; color: var(--text-dim); letter-spacing: 2px; text-transform: uppercase; }
-        .metric-value { font-family: var(--font-head); font-weight: 900; font-size: 38px; color: #fff; }
-
-        .table-panel {
-            background: var(--panel);
-            border: 1px solid var(--border);
-            border-radius: 24px;
-            overflow: hidden;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
-        }
-
+        /* --- TABLE --- */
+        .table-panel { background: var(--surface); border: 1px solid var(--border); border-radius: 24px; overflow: hidden; box-shadow: var(--shadow); }
         table { width: 100%; border-collapse: collapse; }
-        th {
-            padding: 20px 35px;
-            font-size: 10px; font-weight: 900;
-            color: var(--text-dim); letter-spacing: 2px;
-            text-transform: uppercase;
-            border-bottom: 1px solid var(--border);
-            background: rgba(255, 255, 255, 0.01);
-            text-align: left;
-        }
-        td { padding: 25px 35px; border-bottom: 1px solid var(--border); }
-        
-        .key-cell { display: flex; flex-direction: column; gap: 5px; }
-        .key-text { font-family: 'JetBrains Mono', monospace; font-weight: 800; color: #fff; font-size: 14px; letter-spacing: 0.5px; }
-        .key-platform { font-size: 9px; font-weight: 900; color: var(--accent); letter-spacing: 1.5px; text-transform: uppercase; }
+        th { padding: 18px 25px; background: rgba(255,255,255,0.02); text-align: left; font-size: 11px; font-weight: 800; color: var(--text-muted); letter-spacing: 1px; border-bottom: 1px solid var(--border); }
+        td { padding: 20px 25px; border-bottom: 1px solid var(--border); font-size: 14px; }
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background: rgba(255,255,255,0.01); }
 
-        .status-badge {
-            font-size: 11px;
-            font-weight: 900;
-            letter-spacing: 1.5px;
-            text-transform: uppercase;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
+        .key-text { font-family: var(--font-mono); font-weight: 600; color: #fff; }
+        .status-badge { display: inline-flex; align-items: center; gap: 8px; font-weight: 800; font-size: 11px; padding: 6px 12px; border-radius: 20px; background: rgba(255,255,255,0.02); border: 1px solid var(--border); }
 
-        .actions-cell {
-            display: flex;
-            align-items: center;
-            justify-content: flex-end;
-            gap: 12px;
-        }
+        /* --- BUTTONS --- */
+        .btn { background: var(--surface-active); border: 1px solid var(--border-hover); color: #fff; padding: 12px 20px; border-radius: 12px; font-size: 12px; font-weight: 800; cursor: pointer; transition: var(--transition); display: inline-flex; align-items: center; gap: 10px; }
+        .btn:hover { background: var(--surface-hover); border-color: var(--text-muted); transform: scale(1.02); }
+        .btn-accent { background: var(--accent); border-color: transparent; box-shadow: 0 4px 15px var(--accent-muted); }
+        .btn-accent:hover { background: #ff4d77; }
+        .btn-danger { background: rgba(255, 45, 85, 0.05); border-color: rgba(255, 45, 85, 0.2); color: var(--accent); }
+        .btn-danger:hover { background: var(--accent); color: #fff; }
+        .btn-ghost { background: transparent; border-color: transparent; color: var(--text-dim); }
+        .btn-ghost:hover { background: rgba(255,255,255,0.05); color: #fff; }
 
-        .search-box {
-            background: var(--sidebar);
-            border: 1px solid var(--border);
-            padding: 12px 20px;
-            border-radius: 14px;
-            color: #fff;
-            font-size: 13px;
-            outline: none;
-            transition: 0.3s;
-            width: 300px;
-        }
-        .search-box:focus { border-color: var(--blue); box-shadow: 0 0 15px var(--blue-glow); }
+        /* --- MODAL --- */
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(10px); display: none; align-items: center; justify-content: center; z-index: 1000; }
+        .modal-content { background: var(--surface); width: 450px; border-radius: 24px; border: 1px solid var(--border); padding: 40px; box-shadow: var(--shadow); }
+        .modal-header h2 { font-size: 22px; font-weight: 900; margin-bottom: 25px; }
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; font-size: 11px; font-weight: 800; color: var(--text-dim); margin-bottom: 8px; text-transform: uppercase; }
+        .form-group input, .form-group textarea { width: 100%; background: var(--bg); border: 1px solid var(--border); padding: 15px; border-radius: 12px; color: #fff; outline: none; }
 
-        .btn {
-            background: rgba(255,255,255,0.03);
-            border: 1px solid var(--border);
-            color: #fff;
-            padding: 10px 20px;
-            border-radius: 12px;
-            font-size: 11px;
-            font-weight: 900;
-            letter-spacing: 1px;
-            cursor: pointer;
-            transition: 0.3s;
-            text-transform: uppercase;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .btn:hover { background: var(--glass); border-color: rgba(255,255,255,0.1); }
-        .btn-accent { background: var(--accent); border: none; box-shadow: 0 10px 20px var(--accent-glow); }
-        .btn-accent:hover { opacity: 0.9; transform: translateY(-2px); }
-        
-        .btn-danger { color: #f87171; border-color: rgba(248, 113, 113, 0.2); }
-        .btn-danger:hover { background: rgba(248, 113, 113, 0.1); border-color: #f87171; }
-
-        .loading {
-            padding: 100px;
-            text-align: center;
-            font-weight: 900;
-            letter-spacing: 4px;
-            color: var(--text-dim);
-            font-size: 11px;
-            text-transform: uppercase;
-            animation: pulse 2s infinite;
-        }
-        @keyframes pulse { 0%, 100% { opacity: 0.4; } 50% { opacity: 1; } }
-
-        @media (max-width: 1100px) {
-            .sidebar { width: 80px; min-width: 80px; padding: 40px 0; }
-            .logo-area, .nav-label { display: none; }
-            .nav-item { padding: 20px; justify-content: center; }
-            .nav-item i { margin: 0; }
-            .metrics-grid { grid-template-columns: repeat(2, 1fr); }
-        }
-
-        .pagination {
-            padding: 25px 35px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: rgba(255, 255, 255, 0.01);
-            border-top: 1px solid var(--border);
-        }
-        .page-info { font-size: 11px; font-weight: 900; color: var(--text-dim); letter-spacing: 1px; }
-
+        .loading { padding: 100px; text-align: center; color: var(--text-muted); font-size: 11px; font-weight: 800; letter-spacing: 2px; }
+        .pagination { padding: 20px 25px; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border); }
+        #page-info { font-size: 11px; font-weight: 800; color: var(--text-muted); }
     </style>
 </head>
 <body>
-    <div class="sidebar" id="sidebar">
     <div class="app-container">
-        <!-- Sidebar Navigation -->
         <div class="sidebar">
             <div class="brand">
-                <div class="brand-logo"><i data-lucide="zap" style="width: 18px; color: #fff;"></i></div>
+                <div class="brand-logo"><i data-lucide="zap" style="color:#fff; width:18px;"></i></div>
                 <div class="brand-name">CFX STUDIOS</div>
             </div>
-
             <div class="nav-group">
                 <div class="nav-label">Licenses</div>
                 <div class="nav-item active" id="nav-windows" onclick="switchView('windows')">
@@ -283,31 +122,28 @@
                     <i data-lucide="smartphone"></i> <span>ANDROID</span>
                 </div>
             </div>
-
             <div class="nav-group">
                 <div class="nav-label">Monitoring</div>
                 <div class="nav-item" id="nav-trials" onclick="switchView('trials')">
-                    <i data-lucide="clock"></i> <span>GUEST TRIALS</span>
+                    <i data-lucide="clock"></i> <span>TRIALS</span>
                 </div>
                 <div class="nav-item" id="nav-broadcast" onclick="switchView('broadcast')">
                     <i data-lucide="radio"></i> <span>BROADCAST</span>
                 </div>
                 <div class="nav-item" id="nav-vault" onclick="switchView('vault')">
-                    <i data-lucide="lock"></i> <span>MASTER VAULT</span>
+                    <i data-lucide="lock"></i> <span>VAULT</span>
                 </div>
             </div>
-
             <div style="margin-top: auto;">
-                <button class="btn btn-ghost" style="width: 100%; justify-content: flex-start; padding: 12px;" onclick="flushAllKeys()">
+                <button class="btn btn-ghost" style="width: 100%; justify-content: flex-start;" onclick="flushAllKeys()">
                     <i data-lucide="power"></i> <span>FLUSH DATA</span>
                 </button>
             </div>
         </div>
 
-        <!-- Main Workspace -->
         <div class="main-deck">
             <div class="header">
-<div class="title-area">
+                <div>
                     <h1 id="view-title">COMMAND CENTER</h1>
                     <p>Production environment management interface.</p>
                 </div>
@@ -321,13 +157,10 @@
                         <option value="activated">ACTIVATED</option>
                         <option value="available">AVAILABLE</option>
                     </select>
-                    <button class="btn btn-accent" onclick="fetchData(true)">
-                        <i data-lucide="refresh-cw"></i> SYNC NOW
-                    </button>
+                    <button class="btn btn-accent" onclick="fetchData(true)"><i data-lucide="refresh-cw"></i> SYNC NOW</button>
                 </div>
             </div>
 
-            <!-- Global Metrics -->
             <div class="metrics-grid" id="metrics-grid">
                 <div class="metric-card">
                     <div class="metric-label">Total Pipeline</div>
@@ -347,14 +180,13 @@
                 </div>
             </div>
 
-            <!-- Content Area -->
             <div class="table-panel">
                 <div id="table-container">
                     <div class="loading">INITIALIZING COMMAND DECK...</div>
                 </div>
                 <div class="pagination" id="pagination-controls" style="display: none;">
                     <div id="page-info">PAGE 1 OF 1</div>
-                    <div style="display: flex; gap: 8px;">
+                    <div style="display: flex; gap: 10px;">
                         <button class="btn btn-ghost" onclick="changePage(-1)"><i data-lucide="chevron-left"></i></button>
                         <button class="btn btn-ghost" onclick="changePage(1)"><i data-lucide="chevron-right"></i></button>
                     </div>
@@ -363,160 +195,50 @@
         </div>
     </div>
 
-    <!-- License Management Modal -->
+    <!-- Modals -->
     <div class="modal-overlay" id="license-modal">
         <div class="modal-content">
-            <div class="modal-header">
-                <h2 id="modal-title">RESET LICENSE</h2>
-                <p style="font-size: 12px; color: var(--text-dim);">Modify license parameters in the cloud environment.</p>
-            </div>
+            <div class="modal-header"><h2 id="modal-title">RESET LICENSE</h2></div>
             <input type="hidden" id="edit-id">
-                <input type="text" id="modal-email" placeholder="user@example.com" style="background: var(--bg); border: 1px solid var(--border); padding: 15px; border-radius: 10px; color: #fff; width: 100%; outline: none;">
-            </div>
-
+            <div class="form-group"><label>License Key</label><input type="text" id="modal-key" readonly></div>
+            <div class="form-group"><label>Email / UserID</label><input type="text" id="modal-email" placeholder="user@example.com"></div>
             <div style="display: flex; gap: 15px; margin-top: 30px;">
-                <button class="btn" style="flex: 1;" onclick="closeModal()">CANCEL</button>
-                <button class="btn btn-accent" style="flex: 1;" onclick="saveLicense()">SAVE LICENSE</button>
+                <button class="btn btn-ghost" style="flex: 1" onclick="closeModal()">CANCEL</button>
+                <button class="btn btn-accent" style="flex: 2" onclick="saveLicense()">CONFIRM CHANGES</button>
             </div>
         </div>
     </div>
 
+    <script src="https://unpkg.com/lucide@latest"></script>
     <script>
         const FB_URL = "https://cfx-scenepack-creator-default-rtdb.firebaseio.com";
         const FB_SECRET = "YH6mWhfrTk0SuHuLUOoX81xgJw5VxM91B3JdFiTf";
-
+        
         let allLicenses = [];
         let allTrials = [];
         let currentView = 'windows';
         let currentPage = 1;
-        const PAGE_SIZE = 20;
-        let initialSyncDone = false;
-
-        async function fetchData(force = false) {
-            const container = document.getElementById('table-container');
-            if (currentView === 'vault') {
-                if (force) vaultSnippets = [];
-                return await fetchVault();
-            }
-            if (currentView === 'broadcast') return renderBroadcastView();
-
-            if (!allLicenses.length || force) {
-                container.innerHTML = '<div class="loading">SYNCHRONIZING WITH CLOUD...</div>';
-            }
-            
-            try {
-                const [lRes, tRes] = await Promise.all([
-                    fetch(`${FB_URL}/licenses.json?auth=${FB_SECRET}`),
-                    fetch(`${FB_URL}/trials.json?auth=${FB_SECRET}`)
-                ]);
-                const lData = await lRes.json();
-                const tData = await tRes.json();
-                
-                allLicenses = lData ? Object.keys(lData).map(k => ({ id: k, ...lData[k] })) : [];
-                allTrials = tData ? Object.keys(tData).map(k => ({ id: k, ...tData[k] })) : [];
-                
-                initialSyncDone = true;
-                updateStats();
-                renderTable();
-            } catch (err) {
-                container.innerHTML = `<div class="loading" style="color: var(--accent);">CLOUD CONNECTION LOST</div>`;
-            }
-        }
-
-        function renderTable() {
-            const query = document.getElementById('search').value.toLowerCase();
-            const statusFilter = document.getElementById('status-filter').value;
-            let html = `<table><thead><tr><th>LICENSE KEY</th><th>STATUS</th><th style="text-align: right;">ACTIONS</th></tr></thead><tbody>`;
-            
-            if(currentView === 'windows' || currentView === 'android') {
-                let filtered = [...allLicenses];
-                if(currentView === 'windows') filtered = filtered.filter(l => l.id.length > 10);
-                if(currentView === 'android') filtered = filtered.filter(l => l.id.length <= 10);
-
-                if (statusFilter === 'activated') filtered = filtered.filter(l => l.email || l.userEmail);
-                else if (statusFilter === 'not-activated') filtered = filtered.filter(l => !(l.email || l.userEmail));
-
-                filtered = filtered.filter(l => l.id.toLowerCase().includes(query) || (l.email && l.email.toLowerCase().includes(query)));
-
-                const totalPages = Math.ceil(filtered.length / PAGE_SIZE) || 1;
-                currentPage = Math.max(1, Math.min(currentPage, totalPages));
-                const pageData = filtered.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
-
-                document.getElementById('pagination-controls').style.display = 'flex';
-                document.getElementById('page-info').innerText = `PAGE ${currentPage} OF ${totalPages}`;
-
-                pageData.forEach(l => {
-                    const isActivated = !!(l.email || l.userEmail);
-                    const statusText = isActivated ? (l.email || l.userEmail).toUpperCase() : 'NOT ACTIVATED';
-                    const statusColor = isActivated ? 'var(--blue)' : 'var(--text-dim)';
-                    
-                    html += `
-                        <tr>
-                            <td>
-                                <div class="key-cell">
-                                    <div class="key-text">${l.id.replace(/_/g, '-')}</div>
-                                    <div class="key-platform">${currentView}</div>
-                                </div>
-                            </td>
-                            <td>
-                                <div class="status-badge" style="color: ${statusColor}">
-                                    <div style="width: 6px; height: 6px; border-radius: 50%; background: ${statusColor}; box-shadow: 0 0 10px ${statusColor}"></div>
-                                    ${statusText}
-                                </div>
-                            </td>
-                            <td>
-                                <div class="actions-cell">
-                                    <button class="btn" onclick="openModal('${l.id}', '${l.id}')"><i data-lucide="edit-3" style="width: 12px; height: 12px;"></i> RESET</button>
-                                    <button class="btn btn-danger" onclick="deleteLicense('${l.id}')"><i data-lucide="trash-2" style="width: 12px; height: 12px;"></i> DELETE</button>
-                                </div>
-                            </td>
-                        </tr>
-                    `;
-                });
-            } else if (currentView === 'trials') {
-                const filtered = allTrials.filter(t => t.id.toLowerCase().includes(query));
-                filtered.forEach(t => {
-                    html += `
-                        <tr>
-                            <td><div class="key-text">${t.id}</div></td>
-                            <td><div class="status-badge" style="color: var(--accent)">TRIAL ACTIVE</div></td>
-                            <td><div class="actions-cell"><button class="btn btn-danger" onclick="wipeTrial('${t.id}')">WIPE</button></div></td>
-                        </tr>
-                    `;
-                });
-            }
-            document.getElementById('table-container').innerHTML = html + `</tbody></table>`;
-            lucide.createIcons();
-        }
+        const PAGE_SIZE = 15;
 
         async function switchView(view) {
-            currentView = view;
-            currentPage = 1;
+            currentView = view; currentPage = 1;
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            const activeNav = document.getElementById(`nav-${view}`);
+            if (activeNav) activeNav.classList.add('active');
 
             const metrics = document.getElementById('metrics-grid');
             const pagination = document.getElementById('pagination-controls');
             const filter = document.getElementById('status-filter');
-            const search = document.getElementById('search');
+            const search = document.querySelector('.search-container');
             const titleEl = document.getElementById('view-title');
-
-            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-            const activeNav = document.getElementById(`nav-${view}`);
-            if (activeNav) activeNav.classList.add('active');
 
             metrics.style.display = (['windows', 'android', 'trials'].includes(view)) ? 'grid' : 'none';
             pagination.style.display = (['windows', 'android', 'trials'].includes(view)) ? 'flex' : 'none';
             filter.style.display = (['windows', 'android'].includes(view)) ? 'block' : 'none';
             search.style.display = (['windows', 'android', 'trials'].includes(view)) ? 'block' : 'none';
             
-            const titles = {
-                'windows': 'WINDOWS WORKSTATION LICENSES',
-                'android': 'ANDROID MOBILE LICENSES',
-                'trials': 'GUEST TRIAL SESSIONS',
-                'broadcast': 'GLOBAL BROADCAST HUB',
-                'vault': 'MASTER VAULT SNIPPETS'
-            };
+            const titles = { 'windows': 'WINDOWS LICENSES', 'android': 'ANDROID LICENSES', 'trials': 'GUEST TRIALS', 'broadcast': 'BROADCAST HUB', 'vault': 'MASTER VAULT' };
             titleEl.innerText = titles[view] || 'COMMAND CENTER';
-
             await fetchData();
         }
 
@@ -525,9 +247,7 @@
             if (currentView === 'vault') return await fetchVault();
             if (currentView === 'broadcast') return renderBroadcastView();
 
-            if (!allLicenses.length || force) {
-                container.innerHTML = '<div class="loading">SYNCHRONIZING WITH CLOUD...</div>';
-            }
+            if (!allLicenses.length || force) container.innerHTML = '<div class="loading">SYNCING WITH CLOUD...</div>';
             
             try {
                 const [lRes, tRes] = await Promise.all([
@@ -538,12 +258,44 @@
                 const tData = await tRes.json();
                 allLicenses = lData ? Object.keys(lData).map(k => ({ id: k, ...lData[k] })) : [];
                 allTrials = tData ? Object.keys(tData).map(k => ({ id: k, ...tData[k] })) : [];
-                initialSyncDone = true;
                 updateStats();
                 renderTable();
-            } catch (err) {
-                container.innerHTML = `<div class="loading" style="color: var(--accent);">CLOUD CONNECTION LOST</div>`;
+            } catch (err) { container.innerHTML = `<div class="loading" style="color: var(--accent);">CLOUD ERROR</div>`; }
+        }
+
+        function renderTable() {
+            const query = document.getElementById('search').value.toLowerCase();
+            const filter = document.getElementById('status-filter').value;
+            let html = `<table><thead><tr><th>IDENTIFIER</th><th>STATUS / OWNER</th><th style="text-align:right">OPERATIONS</th></tr></thead><tbody>`;
+
+            if (['windows', 'android'].includes(currentView)) {
+                let filtered = allLicenses.filter(l => {
+                    const isWin = l.id.length > 10;
+                    if (currentView === 'windows' && !isWin) return false;
+                    if (currentView === 'android' && isWin) return false;
+                    const matchesSearch = l.id.toLowerCase().includes(query) || (l.email && l.email.toLowerCase().includes(query));
+                    const isActivated = !!(l.email || l.userEmail);
+                    const matchesFilter = filter === 'all' || (filter === 'activated' ? isActivated : !isActivated);
+                    return matchesSearch && matchesFilter;
+                });
+
+                const totalPages = Math.ceil(filtered.length / PAGE_SIZE) || 1;
+                const pageData = filtered.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+                document.getElementById('page-info').innerText = `PAGE ${currentPage} OF ${totalPages}`;
+
+                pageData.forEach(l => {
+                    const isActivated = !!(l.email || l.userEmail);
+                    const statusText = isActivated ? (l.email || l.userEmail).toUpperCase() : 'NOT ACTIVATED';
+                    const statusColor = isActivated ? 'var(--blue)' : 'var(--text-muted)';
+                    html += `<tr><td><div class="key-text">${l.id.replace(/_/g, '-')}</div></td><td><div class="status-badge"><div style="width:6px;height:6px;border-radius:50%;background:${statusColor};box-shadow:0 0 8px ${statusColor}"></div>${statusText}</div></td><td style="text-align:right"><div style="display:flex;gap:8px;justify-content:flex-end"><button class="btn btn-ghost" onclick="openModal('${l.id}', '${l.id}')">RESET</button><button class="btn btn-danger" onclick="deleteLicense('${l.id}')"><i data-lucide="trash-2" style="width:14px"></i></button></div></td></tr>`;
+                });
+            } else if (currentView === 'trials') {
+                allTrials.filter(t => t.id.toLowerCase().includes(query)).forEach(t => {
+                    html += `<tr><td><div class="key-text">${t.id}</div></td><td><div class="status-badge" style="color:var(--accent)">ACTIVE TRIAL</div></td><td style="text-align:right"><button class="btn btn-danger" onclick="wipeTrial('${t.id}')">WIPE</button></td></tr>`;
+                });
             }
+            document.getElementById('table-container').innerHTML = html + `</tbody></table>`;
+            lucide.createIcons();
         }
 
         function updateStats() {
@@ -554,55 +306,27 @@
             document.getElementById('stat-active-trials').innerText = allTrials.length;
         }
 
-        function openModal(id = '', key = '') {
-            document.getElementById('edit-id').value = id;
-            document.getElementById('modal-key').value = key;
-            document.getElementById('modal-email').value = '';
-            document.getElementById('modal-title').innerText = id ? 'RESET LICENSE' : 'ADD LICENSE';
-            document.getElementById('license-modal').style.display = 'flex';
-        }
-
+        function filterData() { currentPage = 1; renderTable(); }
+        function changePage(d) { currentPage += d; renderTable(); }
+        function openModal(id, key) { document.getElementById('edit-id').value = id; document.getElementById('modal-key').value = key; document.getElementById('modal-email').value = ''; document.getElementById('license-modal').style.display = 'flex'; }
         function closeModal() { document.getElementById('license-modal').style.display = 'none'; }
 
         async function saveLicense() {
-            const id = document.getElementById('edit-id').value;
-            const key = document.getElementById('modal-key').value || `CFX-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
+            const key = document.getElementById('modal-key').value;
             const email = document.getElementById('modal-email').value;
-            
-            const data = { id: key, email: email, status: email ? 'ACTIVE' : 'AVAILABLE' };
-            await fetch(`${FB_URL}/licenses/${key}.json?auth=${FB_SECRET}`, { method: 'PUT', body: JSON.stringify(data) });
-            closeModal();
-            fetchData(true);
+            await fetch(`${FB_URL}/licenses/${key}.json?auth=${FB_SECRET}`, { method: 'PUT', body: JSON.stringify({ id: key, email: email, status: email ? 'ACTIVE' : 'AVAILABLE' }) });
+            closeModal(); fetchData(true);
         }
 
-        async function deleteLicense(id) {
-            if(!confirm("DELETE LICENSE?")) return;
-            await fetch(`${FB_URL}/licenses/${id}.json?auth=${FB_SECRET}`, { method: 'DELETE' });
-            fetchData(true);
-        }
+        async function deleteLicense(id) { if(confirm("DELETE?")) { await fetch(`${FB_URL}/licenses/${id}.json?auth=${FB_SECRET}`, { method: 'DELETE' }); fetchData(true); } }
+        async function wipeTrial(id) { if(confirm("WIPE?")) { await fetch(`${FB_URL}/trials/${id}.json?auth=${FB_SECRET}`, { method: 'DELETE' }); fetchData(true); } }
+        async function flushAllKeys() { if(prompt("Type 'FLUSH':") === 'FLUSH') { await fetch(`${FB_URL}/licenses.json?auth=${FB_SECRET}`, { method: 'DELETE' }); fetchData(true); } }
 
-        async function wipeTrial(id) {
-            if(!confirm("WIPE TRIAL?")) return;
-            await fetch(`${FB_URL}/trials/${id}.json?auth=${FB_SECRET}`, { method: 'DELETE' });
-            fetchData(true);
-        }
-
-        async function flushAllKeys() {
-            if(prompt("Type 'FLUSH' to confirm:") === 'FLUSH') {
-                await fetch(`${FB_URL}/licenses.json?auth=${FB_SECRET}`, { method: 'DELETE' });
-                fetchData(true);
-            }
-        }
-
-        // --- VAULT ENGINE ---
-        let vaultSnippets = [];
-        let activeSnippetId = null;
-
+        // --- VAULT ---
+        let vaultSnippets = []; let activeSnippetId = null;
         async function fetchVault() {
-            const token = localStorage.getItem('cfx_github_token');
-            const gistId = localStorage.getItem('cfx_vault_gistid');
+            const token = localStorage.getItem('cfx_github_token'), gistId = localStorage.getItem('cfx_vault_gistid');
             if(!token || !gistId) return renderVaultSetup();
-
             const res = await fetch(`https://api.github.com/gists/${gistId}?t=${Date.now()}`, { headers: { 'Authorization': `token ${token}` } });
             const data = await res.json();
             vaultSnippets = data.files['vault.json'] ? JSON.parse(data.files['vault.json'].content) : [];
@@ -611,289 +335,79 @@
 
         function renderVault() {
             const container = document.getElementById('table-container');
-            container.innerHTML = `
-                <div style="display: grid; grid-template-columns: 320px 1fr; gap: 25px; height: calc(100vh - 250px);">
-                    <!-- Sidebar List -->
-                    <div style="background: var(--panel); border-radius: 24px; border: 1px solid var(--border); display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 15px 40px rgba(0,0,0,0.3);">
-                        <div style="padding: 25px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.01);">
-                            <div style="font-size: 10px; font-weight: 900; letter-spacing: 2px; color: var(--text-dim);">MASTER VAULT</div>
-                            <button class="btn btn-accent" style="padding: 8px 12px; font-size: 11px;" onclick="addSnippet()">NEW PASTE</button>
-                        </div>
-                        <div style="flex: 1; overflow-y: auto; padding: 15px;" id="vault-list"></div>
-                    </div>
-
-                    <!-- Editor Hub -->
-                    <div id="vault-editor" style="background: var(--panel); border-radius: 24px; border: 1px solid var(--border); padding: 35px; display: flex; flex-direction: column; box-shadow: 0 15px 40px rgba(0,0,0,0.3); position: relative;">
-                        <div style="text-align: center; padding: 100px 40px; color: var(--text-dim);">
-                            <i data-lucide="lock" style="width: 56px; height: 56px; margin-bottom: 25px; opacity: 0.15; color: var(--accent);"></i>
-                            <h3 style="font-family: 'Outfit'; color: #fff; margin-bottom: 10px;">VAULT SECURE</h3>
-                            <p style="font-size: 13px; max-width: 300px; margin: 0 auto; line-height: 1.6;">Select a paste or create a new one to begin decryption.</p>
-                        </div>
-                    </div>
-                </div>
-            `;
-
-            const list = document.getElementById('vault-list');
-            list.innerHTML = vaultSnippets.map(s => {
-                const isActive = activeSnippetId === s.id;
-                return `
-                    <div onclick="editSnippet('${s.id}')" style="padding: 20px; border-radius: 16px; margin-bottom: 12px; cursor: pointer; background: ${isActive ? 'linear-gradient(90deg, rgba(255,45,85,0.08) 0%, rgba(255,45,85,0.02) 100%)' : 'rgba(255,255,255,0.01)'}; border: 1px solid ${isActive ? 'var(--accent)' : 'var(--border)'}; transition: 0.3s; position: relative; overflow: hidden; display: flex; align-items: center; justify-content: space-between;">
-                        <div style="flex: 1; min-width: 0;">
-                            <div style="font-size: 14px; font-weight: 700; color: ${isActive ? '#fff' : 'var(--text)'}; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${s.title || 'Untitled'}</div>
-                            <div style="font-size: 10px; color: var(--text-dim); opacity: 0.6; font-family: 'JetBrains Mono';">${s.content ? s.content.substring(0, 30) + '...' : 'Empty...'}</div>
-                        </div>
-                        <i data-lucide="trash-2" style="width: 14px; height: 14px; color: var(--text-dim); opacity: 0.5;" onclick="event.stopPropagation(); deleteSnippet('${s.id}')"></i>
-                        ${isActive ? '<div style="position: absolute; left: 0; top: 0; height: 100%; width: 4px; background: var(--accent);"></div>' : ''}
-                    </div>
-                `;
-            }).join('');
-            
-            if (activeSnippetId) {
-                const s = vaultSnippets.find(x => x.id === activeSnippetId);
-                if (s) renderEditor(s);
-            }
+            container.innerHTML = `<div style="display:grid;grid-template-columns:320px 1fr;gap:25px;height:calc(100vh - 250px);"><div style="background:var(--sidebar);border-radius:24px;border:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;"><div style="padding:25px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;"><div style="font-size:10px;font-weight:800;color:var(--text-muted);letter-spacing:1px;">VAULT</div><button class="btn btn-accent" style="padding:6px 12px;font-size:10px;" onclick="addSnippet()">NEW</button></div><div style="flex:1;overflow-y:auto;padding:15px;" id="vault-list"></div></div><div id="vault-editor" style="background:var(--surface);border-radius:24px;border:1px solid var(--border);padding:35px;display:flex;flex-direction:column;"><div style="text-align:center;padding:100px;opacity:0.2;"><i data-lucide="lock" style="width:48px;height:48px;"></i></div></div></div>`;
+            document.getElementById('vault-list').innerHTML = vaultSnippets.map(s => `<div onclick="editSnippet('${s.id}')" class="nav-item ${activeSnippetId === s.id ? 'active' : ''}" style="margin-bottom:8px;justify-content:space-between;"><span>${s.title || 'Untitled'}</span><i data-lucide="trash-2" style="width:14px;opacity:0.4;" onclick="event.stopPropagation(); deleteSnippet('${s.id}')"></i></div>`).join('');
+            if (activeSnippetId) renderEditor(vaultSnippets.find(x => x.id === activeSnippetId));
             lucide.createIcons();
         }
 
         function renderEditor(s) {
-            document.getElementById('vault-editor').innerHTML = `
-                <div style="margin-bottom: 25px;">
-                    <label style="font-size: 10px; font-weight: 900; color: var(--text-dim); letter-spacing: 2px; margin-bottom: 10px; display: block;">PASTE TITLE</label>
-                    <input type="text" id="v-title" value="${s.title}" style="width: 100%; background: var(--bg); border: 1px solid var(--border); padding: 18px 25px; border-radius: 14px; color: #fff; font-family: 'Outfit'; font-weight: 900; font-size: 18px; outline: none; box-shadow: inset 0 2px 10px rgba(0,0,0,0.2);">
-                </div>
-                <div style="flex: 1; display: flex; flex-direction: column;">
-                    <label style="font-size: 10px; font-weight: 900; color: var(--text-dim); letter-spacing: 2px; margin-bottom: 10px; display: block;">CONTENT / SCRIPT DATA</label>
-                    <textarea id="v-content" style="flex: 1; background: var(--bg); border: 1px solid var(--border); padding: 25px; border-radius: 20px; color: #fff; font-family: 'JetBrains Mono'; font-size: 14px; line-height: 1.6; outline: none; resize: none; box-shadow: inset 0 2px 10px rgba(0,0,0,0.2);">${s.content}</textarea>
-                </div>
-                <div style="margin-top: 25px; display: flex; gap: 15px; align-items: center;">
-                    <div style="flex: 1; font-size: 11px; color: var(--text-dim); font-weight: 800; letter-spacing: 1px;">ENCRYPTED VIA GITHUB-GIST API</div>
-                    <button class="btn btn-accent" style="padding: 15px 40px;" onclick="saveVault()">SAVE & SYNC CLOUD</button>
-                </div>
-            `;
+            document.getElementById('vault-editor').innerHTML = `<div class="form-group"><label>TITLE</label><input type="text" id="v-title" value="${s.title}"></div><div class="form-group" style="flex:1;display:flex;flex-direction:column;"><label>CONTENT</label><textarea id="v-content" style="flex:1;font-family:var(--font-mono);background:var(--bg);border:1px solid var(--border);color:#fff;padding:15px;border-radius:12px;outline:none;resize:none;">${s.content}</textarea></div><button class="btn btn-accent" style="width:100%;padding:18px;" onclick="saveVault()">SAVE & SYNC</button>`;
         }
 
-        function editSnippet(id) {
-            activeSnippetId = id;
-            renderVault();
-        }
-
+        function editSnippet(id) { activeSnippetId = id; renderVault(); }
         async function saveVault() {
             const s = vaultSnippets.find(x => x.id === activeSnippetId);
-            if (s) {
-                s.title = document.getElementById('v-title').value;
-                s.content = document.getElementById('v-content').value;
-            }
-            const token = localStorage.getItem('cfx_github_token');
-            const gistId = localStorage.getItem('cfx_vault_gistid');
-            
-            try {
-                const res = await fetch(`https://api.github.com/gists/${gistId}`, {
-                    method: 'PATCH',
-                    headers: { 'Authorization': `token ${token}`, 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ files: { 'vault.json': { content: JSON.stringify(vaultSnippets, null, 2) } } })
-                });
-                if(res.ok) alert("VAULT SYNCED");
-                fetchVault();
-            } catch(e) { alert("SYNC FAILED"); }
+            s.title = document.getElementById('v-title').value; s.content = document.getElementById('v-content').value;
+            const token = localStorage.getItem('cfx_github_token'), gistId = localStorage.getItem('cfx_vault_gistid');
+            await fetch(`https://api.github.com/gists/${gistId}`, { method: 'PATCH', headers: { 'Authorization': `token ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ files: { 'vault.json': { content: JSON.stringify(vaultSnippets, null, 2) } } }) });
+            fetchVault();
         }
 
-        function addSnippet() {
-            const id = `v-${Date.now()}`;
-            vaultSnippets.unshift({ id, title: 'New Paste', content: '' });
-            activeSnippetId = id;
-            renderVault();
-        }
+        function addSnippet() { const id = `v-${Date.now()}`; vaultSnippets.unshift({ id, title: 'New', content: '' }); activeSnippetId = id; renderVault(); }
+        async function deleteSnippet(id) { if(confirm("DELETE?")) { vaultSnippets = vaultSnippets.filter(x => x.id !== id); activeSnippetId = null; await saveVault(); } }
+        function renderVaultSetup() { document.getElementById('table-container').innerHTML = `<div class="loading">VAULT LOCKED. SET CONFIG IN BROADCAST.</div>`; }
 
-        async function deleteSnippet(id) {
-            if(!confirm("DELETE?")) return;
-            vaultSnippets = vaultSnippets.filter(x => x.id !== id);
-            activeSnippetId = null;
-            await saveVault();
-        }
-
-        function renderVaultSetup() {
-            document.getElementById('table-container').innerHTML = `
-                <div style="text-align: center; padding: 100px; background: var(--panel); border-radius: 30px; border: 1px solid var(--border);">
-                    <i data-lucide="shield-alert" style="width: 60px; height: 60px; color: var(--accent); margin-bottom: 25px;"></i>
-                    <h2 style="font-family: 'Outfit'; margin-bottom: 10px;">MASTER VAULT LOCKED</h2>
-                    <p style="color: var(--text-dim); font-size: 13px; margin-bottom: 30px;">SET YOUR GITHUB TOKEN AND GIST ID IN THE BROADCAST TAB TO DECRYPT</p>
-                </div>
-            `;
-            lucide.createIcons();
-        }
-
-        // --- BROADCAST VIEW ---
+        // --- BROADCAST ---
         function renderBroadcastView() {
-            const container = document.getElementById('table-container');
-            container.innerHTML = `
-                <div style="padding: 45px; background: var(--panel); border-radius: 30px; border: 1px solid var(--border); box-shadow: 0 20px 60px rgba(0,0,0,0.4);">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px;">
-                        <h2 style="font-family: 'Outfit'; letter-spacing: 1px;">GLOBAL BROADCAST HUB</h2>
-                        <div style="display: flex; gap: 15px; align-items: center;">
-                            <div id="bc-status" style="font-size: 9px; font-weight: 950; color: var(--text-dim); letter-spacing: 2px;">READY</div>
-                            <select id="bc-target" onchange="loadTargetConfig()" style="background: var(--bg); border: 1px solid var(--border); padding: 8px 15px; border-radius: 10px; color: var(--accent); font-weight: 900; font-size: 11px; outline: none; cursor: pointer; text-transform: uppercase;">
-                                <option value="desktop">DESKTOP WORKSTATION</option>
-                                <option value="mobile">MOBILE APP</option>
-                            </select>
-                            <div style="width: 8px; height: 8px; border-radius: 50%; background: #10b981; box-shadow: 0 0 10px #10b981;"></div>
-                        </div>
-                    </div>
-
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 35px;">
-                        <div>
-                            <label style="display: block; font-size: 10px; font-weight: 900; color: var(--text-dim); letter-spacing: 2px; margin-bottom: 12px;">GITHUB ACCESS TOKEN</label>
-                            <input type="password" id="set-token" placeholder="ghp_..." style="background: var(--bg); border: 1px solid var(--border); padding: 18px 25px; border-radius: 14px; color: #fff; width: 100%; outline: none; font-family: 'JetBrains Mono';">
-                        </div>
-                        <div>
-                            <label style="display: block; font-size: 10px; font-weight: 900; color: var(--text-dim); letter-spacing: 2px; margin-bottom: 12px;">TARGET GIST ID</label>
-                            <input type="text" id="set-gist" placeholder="Paste Gist ID..." style="background: var(--bg); border: 1px solid var(--border); padding: 18px 25px; border-radius: 14px; color: #fff; width: 100%; outline: none; font-family: 'JetBrains Mono';">
-                        </div>
-                    </div>
-
-                    <div style="border-top: 1px solid var(--border); padding-top: 40px;">
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 25px;">
-                            <div>
-                                <label style="display: block; font-size: 10px; font-weight: 900; color: var(--text-dim); letter-spacing: 2px; margin-bottom: 12px;">LIVE VERSION</label>
-                                <input type="text" id="bc-version" placeholder="e.g. 5.5.0" style="background: var(--bg); border: 1px solid var(--border); padding: 18px 25px; border-radius: 14px; color: #fff; width: 100%; outline: none;">
-                            </div>
-                            <div>
-                                <label style="display: block; font-size: 10px; font-weight: 900; color: var(--text-dim); letter-spacing: 2px; margin-bottom: 12px;">MESSAGE TYPE</label>
-                                <select id="bc-type" style="background: var(--bg); border: 1px solid var(--border); padding: 18px 25px; border-radius: 14px; color: #fff; width: 100%; outline: none; cursor: pointer;">
-                                    <option value="message">ANNOUNCEMENT</option>
-                                    <option value="update">FORCE UPDATE</option>
-                                    <option value="warning">MAINTENANCE</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 25px;">
-                            <div>
-                                <label style="display: block; font-size: 10px; font-weight: 900; color: var(--text-dim); letter-spacing: 2px; margin-bottom: 12px;">REDIRECT URL</label>
-                                <input type="text" id="bc-url" placeholder="https://..." style="background: var(--bg); border: 1px solid var(--border); padding: 18px 25px; border-radius: 14px; color: #fff; width: 100%; outline: none;">
-                            </div>
-                            <div>
-                                <label style="display: block; font-size: 10px; font-weight: 900; color: var(--text-dim); letter-spacing: 2px; margin-bottom: 12px;">UPCOMING FEATURES (COMMA SEPARATED)</label>
-                                <input type="text" id="bc-upcoming" placeholder="4K Export, Cloud Sync, etc." style="background: var(--bg); border: 1px solid var(--border); padding: 18px 25px; border-radius: 14px; color: #fff; width: 100%; outline: none;">
-                            </div>
-                        </div>
-                        <div style="margin-bottom: 30px;">
-                            <label style="display: block; font-size: 10px; font-weight: 900; color: var(--text-dim); letter-spacing: 2px; margin-bottom: 12px;">GLOBAL ANNOUNCEMENT MESSAGE</label>
-                            <textarea id="bc-msg" placeholder="Type message here..." style="background: var(--bg); border: 1px solid var(--border); padding: 20px 25px; border-radius: 14px; color: #fff; width: 100%; height: 100px; outline: none; resize: none; font-family: var(--font-main);"></textarea>
-                        </div>
-                        <div style="display: flex; gap: 20px;">
-                            <button class="btn" style="flex: 1; padding: 20px;" onclick="saveAdminCreds()">UPDATE TARGET CONFIG</button>
-                            <button class="btn btn-accent" id="btn-push" style="flex: 2; padding: 20px; font-size: 13px;" onclick="pushBroadcast()">PUSH BROADCAST LIVE</button>
-                        </div>
-                    </div>
-                </div>
-            `;
-            loadTargetConfig();
-            lucide.createIcons();
+            document.getElementById('table-container').innerHTML = `<div style="padding:45px;background:var(--surface);border-radius:32px;border:1px solid var(--border);"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:40px;"><h2 style="font-weight:900;">BROADCAST HUB</h2><div style="display:flex;gap:15px;align-items:center;"><div id="bc-status" style="font-size:10px;font-weight:800;color:var(--text-muted);letter-spacing:1px;">READY</div><select id="bc-target" onchange="loadTargetConfig()" style="padding:8px 12px;font-size:11px;"><option value="desktop">DESKTOP</option><option value="mobile">MOBILE</option></select><div style="width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 10px var(--green);"></div></div></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:24px;"><div class="form-group"><label>TOKEN</label><input type="password" id="set-token"></div><div class="form-group"><label>GIST ID</label><input type="text" id="set-gist"></div></div><div style="border-top:1px solid var(--border);padding-top:30px;"><div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:24px;"><div class="form-group"><label>VERSION</label><input type="text" id="bc-version"></div><div class="form-group"><label>TYPE</label><select id="bc-type" style="width:100%"><option value="message">ANNOUNCEMENT</option><option value="update">FORCE UPDATE</option><option value="warning">MAINTENANCE</option></select></div></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:24px;"><div class="form-group"><label>URL</label><input type="text" id="bc-url"></div><div class="form-group"><label>FEATURES (COMMA)</label><input type="text" id="bc-upcoming"></div></div><div class="form-group"><label>MESSAGE</label><textarea id="bc-msg" style="width:100%;height:100px;background:var(--bg);border:1px solid var(--border);color:#fff;padding:15px;border-radius:12px;outline:none;resize:none;"></textarea></div><div style="display:flex;gap:15px;"><button class="btn" style="flex:1" onclick="saveAdminCreds()">SAVE CONFIG</button><button class="btn btn-accent" id="btn-push" style="flex:2" onclick="pushBroadcast()">PUSH LIVE</button></div></div></div>`;
+            loadTargetConfig(); lucide.createIcons();
         }
 
         async function loadTargetConfig() {
             const target = document.getElementById('bc-target').value;
             document.getElementById('set-token').value = localStorage.getItem('cfx_github_token') || '';
             document.getElementById('set-gist').value = localStorage.getItem(`cfx_gist_${target}`) || '';
-            
-            // Auto-fetch existing data
             await fetchGistContent();
         }
 
         async function fetchGistContent() {
-            const target = document.getElementById('bc-target').value;
-            const token = document.getElementById('set-token').value;
-            const gistId = document.getElementById('set-gist').value;
-            const status = document.getElementById('bc-status');
-            
-            if (!token || !gistId) return;
-
-            if (status) {
-                status.innerText = "FETCHING LIVE...";
-                status.style.color = "var(--blue)";
-            }
-
+            const target = document.getElementById('bc-target').value, token = document.getElementById('set-token').value, gistId = document.getElementById('set-gist').value, status = document.getElementById('bc-status');
+            if (!token || !gistId) return; if (status) status.innerText = "FETCHING...";
             try {
                 const filename = target === 'mobile' ? 'gistfile2.txt' : 'gistfile1.txt';
-                const response = await fetch(`https://api.github.com/gists/${gistId}?t=${Date.now()}`, {
-                    headers: { 'Authorization': `token ${token}` }
-                });
-                
-                if (response.ok) {
-                    const data = await response.json();
-                    if (data.files && data.files[filename]) {
+                const res = await fetch(`https://api.github.com/gists/${gistId}?t=${Date.now()}`, { headers: { 'Authorization': `token ${token}` } });
+                if (res.ok) {
+                    const data = await res.json(); if (data.files && data.files[filename]) {
                         const content = JSON.parse(data.files[filename].content);
-                        document.getElementById('bc-version').value = content.version || '';
-                        document.getElementById('bc-msg').value = content.message || '';
-                        document.getElementById('bc-type').value = content.type || 'message';
-                        document.getElementById('bc-url').value = content.url || '';
-                        document.getElementById('bc-upcoming').value = (content.upcoming || []).join(', ');
-                        
-                        if (status) {
-                            status.innerText = "SYNCED";
-                            status.style.color = "#10b981";
-                        }
+                        document.getElementById('bc-version').value = content.version || ''; document.getElementById('bc-msg').value = content.message || '';
+                        document.getElementById('bc-type').value = content.type || 'message'; document.getElementById('bc-url').value = content.url || '';
+                        document.getElementById('bc-upcoming').value = (content.upcoming || []).join(', '); if (status) status.innerText = "SYNCED";
                     }
                 }
-            } catch (e) {
-                console.error("Fetch Error:", e);
-                if (status) {
-                    status.innerText = "SYNC ERROR";
-                    status.style.color = "var(--accent)";
-                }
-            }
+            } catch (e) { if (status) status.innerText = "ERROR"; }
         }
 
         function saveAdminCreds() {
             const target = document.getElementById('bc-target').value;
             localStorage.setItem('cfx_github_token', document.getElementById('set-token').value);
             localStorage.setItem(`cfx_gist_${target}`, document.getElementById('set-gist').value);
-            alert(`CONFIG SAVED FOR ${target.toUpperCase()}`);
+            alert("CONFIG SAVED");
         }
 
         async function pushBroadcast() {
-            const target = document.getElementById('bc-target').value;
-            const token = document.getElementById('set-token').value;
-            const gistId = document.getElementById('set-gist').value;
-            const msg = document.getElementById('bc-msg').value;
-            const url = document.getElementById('bc-url').value;
-            const upcomingRaw = document.getElementById('bc-upcoming').value;
-            const btn = document.getElementById('btn-push');
-
-            if(!token || !gistId || !msg) return alert("MISSING PARAMS");
-
-            btn.innerText = `PUSHING TO ${target.toUpperCase()}...`;
-            btn.disabled = true;
-
-            const upcoming = upcomingRaw ? upcomingRaw.split(',').map(s => s.trim()).filter(s => s !== "") : [];
-
-            const payload = {
-                version: document.getElementById('bc-version').value,
-                message: msg,
-                type: document.getElementById('bc-type').value,
-                url: url,
-                upcoming: upcoming,
-                timestamp: Math.floor(Date.now() / 1000)
-            };
-
+            const target = document.getElementById('bc-target').value, token = document.getElementById('set-token').value, gistId = document.getElementById('set-gist').value, msg = document.getElementById('bc-msg').value, url = document.getElementById('bc-url').value, upcomingRaw = document.getElementById('bc-upcoming').value, btn = document.getElementById('btn-push');
+            if(!token || !gistId || !msg) return alert("MISSING PARAMS"); btn.innerText = "PUSHING..."; btn.disabled = true;
+            const payload = { version: document.getElementById('bc-version').value, message: msg, type: document.getElementById('bc-type').value, url: url, upcoming: upcomingRaw ? upcomingRaw.split(',').map(s => s.trim()).filter(s => s !== "") : [], timestamp: Math.floor(Date.now() / 1000) };
             try {
-                // Precise target filenames
                 const filename = target === 'mobile' ? 'gistfile2.txt' : 'gistfile1.txt';
-                const res = await fetch(`https://api.github.com/gists/${gistId}`, {
-                    method: 'PATCH',
-                    headers: { 'Authorization': `token ${token}`, 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ files: { [filename]: { content: JSON.stringify(payload, null, 2) } } })
-                });
-                if(res.ok) alert(`${target.toUpperCase()} BROADCAST LIVE (${filename})`);
-                else alert("GITHUB REJECTED PUSH");
-            } catch(e) { alert("PUSH FAILED"); }
-            finally {
-                btn.innerText = "PUSH BROADCAST LIVE";
-                btn.disabled = false;
-            }
+                const res = await fetch(`https://api.github.com/gists/${gistId}`, { method: 'PATCH', headers: { 'Authorization': `token ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ files: { [filename]: { content: JSON.stringify(payload, null, 2) } } }) });
+                if(res.ok) alert("LIVE");
+            } catch(e) { alert("FAILED"); }
+            finally { btn.innerText = "PUSH LIVE"; btn.disabled = false; }
         }
 
-        fetchData();
-        lucide.createIcons();
+        fetchData(); lucide.createIcons();
     </script>
 </body>
 </html>
