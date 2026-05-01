@@ -725,19 +725,22 @@
                 <div style="padding: 45px; background: var(--panel); border-radius: 30px; border: 1px solid var(--border); box-shadow: 0 20px 60px rgba(0,0,0,0.4);">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px;">
                         <h2 style="font-family: 'Outfit'; letter-spacing: 1px;">GLOBAL BROADCAST HUB</h2>
-                        <div style="display: flex; gap: 10px; align-items: center;">
-                            <div id="bc-status" style="font-size: 9px; font-weight: 950; color: var(--text-dim); letter-spacing: 2px;">ENGINE READY</div>
+                        <div style="display: flex; gap: 15px; align-items: center;">
+                            <select id="bc-target" onchange="loadTargetConfig()" style="background: var(--bg); border: 1px solid var(--border); padding: 8px 15px; border-radius: 10px; color: var(--accent); font-weight: 900; font-size: 11px; outline: none; cursor: pointer; text-transform: uppercase;">
+                                <option value="desktop">DESKTOP WORKSTATION</option>
+                                <option value="mobile">MOBILE APP</option>
+                            </select>
                             <div style="width: 8px; height: 8px; border-radius: 50%; background: #10b981; box-shadow: 0 0 10px #10b981;"></div>
                         </div>
                     </div>
 
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 35px;">
                         <div>
-                            <label style="display: block; font-size: 10px; font-weight: 900; color: var(--text-dim); letter-spacing: 2px; margin-bottom: 12px;">GITHUB ACCESS TOKEN (PAT)</label>
+                            <label style="display: block; font-size: 10px; font-weight: 900; color: var(--text-dim); letter-spacing: 2px; margin-bottom: 12px;">GITHUB ACCESS TOKEN</label>
                             <input type="password" id="set-token" placeholder="ghp_..." style="background: var(--bg); border: 1px solid var(--border); padding: 18px 25px; border-radius: 14px; color: #fff; width: 100%; outline: none; font-family: 'JetBrains Mono';">
                         </div>
                         <div>
-                            <label style="display: block; font-size: 10px; font-weight: 900; color: var(--text-dim); letter-spacing: 2px; margin-bottom: 12px;">MASTER VAULT GIST ID</label>
+                            <label style="display: block; font-size: 10px; font-weight: 900; color: var(--text-dim); letter-spacing: 2px; margin-bottom: 12px;">TARGET GIST ID</label>
                             <input type="text" id="set-gist" placeholder="Paste Gist ID..." style="background: var(--bg); border: 1px solid var(--border); padding: 18px 25px; border-radius: 14px; color: #fff; width: 100%; outline: none; font-family: 'JetBrains Mono';">
                         </div>
                     </div>
@@ -745,7 +748,7 @@
                     <div style="border-top: 1px solid var(--border); padding-top: 40px;">
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 25px;">
                             <div>
-                                <label style="display: block; font-size: 10px; font-weight: 900; color: var(--text-dim); letter-spacing: 2px; margin-bottom: 12px;">VERSION STRING</label>
+                                <label style="display: block; font-size: 10px; font-weight: 900; color: var(--text-dim); letter-spacing: 2px; margin-bottom: 12px;">LIVE VERSION</label>
                                 <input type="text" id="bc-version" placeholder="e.g. 5.5.0" style="background: var(--bg); border: 1px solid var(--border); padding: 18px 25px; border-radius: 14px; color: #fff; width: 100%; outline: none;">
                             </div>
                             <div>
@@ -762,32 +765,39 @@
                             <textarea id="bc-msg" placeholder="Type message here..." style="background: var(--bg); border: 1px solid var(--border); padding: 20px 25px; border-radius: 14px; color: #fff; width: 100%; height: 100px; outline: none; resize: none; font-family: var(--font-main);"></textarea>
                         </div>
                         <div style="display: flex; gap: 20px;">
-                            <button class="btn" style="flex: 1; padding: 20px;" onclick="saveAdminCreds()">UPDATE CONFIG</button>
-                            <button class="btn btn-accent" id="btn-push" style="flex: 2; padding: 20px; font-size: 13px;" onclick="pushBroadcast()">PUSH GLOBAL BROADCAST</button>
+                            <button class="btn" style="flex: 1; padding: 20px;" onclick="saveAdminCreds()">UPDATE TARGET CONFIG</button>
+                            <button class="btn btn-accent" id="btn-push" style="flex: 2; padding: 20px; font-size: 13px;" onclick="pushBroadcast()">PUSH BROADCAST LIVE</button>
                         </div>
                     </div>
                 </div>
             `;
-            document.getElementById('set-token').value = localStorage.getItem('cfx_github_token') || '';
-            document.getElementById('set-gist').value = localStorage.getItem('cfx_vault_gistid') || '';
+            loadTargetConfig();
             lucide.createIcons();
         }
 
+        function loadTargetConfig() {
+            const target = document.getElementById('bc-target').value;
+            document.getElementById('set-token').value = localStorage.getItem('cfx_github_token') || '';
+            document.getElementById('set-gist').value = localStorage.getItem(`cfx_gist_${target}`) || '';
+        }
+
         function saveAdminCreds() {
+            const target = document.getElementById('bc-target').value;
             localStorage.setItem('cfx_github_token', document.getElementById('set-token').value);
-            localStorage.setItem('cfx_vault_gistid', document.getElementById('set-gist').value);
-            alert("ADMIN CONFIG UPDATED");
+            localStorage.setItem(`cfx_gist_${target}`, document.getElementById('set-gist').value);
+            alert(`CONFIG SAVED FOR ${target.toUpperCase()}`);
         }
 
         async function pushBroadcast() {
+            const target = document.getElementById('bc-target').value;
             const token = document.getElementById('set-token').value;
             const gistId = document.getElementById('set-gist').value;
             const msg = document.getElementById('bc-msg').value;
             const btn = document.getElementById('btn-push');
 
-            if(!token || !gistId || !msg) return alert("MISSING COMMAND PARAMS");
+            if(!token || !gistId || !msg) return alert("MISSING PARAMS");
 
-            btn.innerText = "PUSHING TO CLOUD...";
+            btn.innerText = `PUSHING TO ${target.toUpperCase()}...`;
             btn.disabled = true;
 
             const payload = {
@@ -798,18 +808,18 @@
             };
 
             try {
-                // Broadcast logic usually pushes to a specific gist (shared with app)
-                // For this implementation, we reuse the vault gist or a dedicated broadcast gist
+                // Filename depends on target usually, but often gistfile1.txt is default
+                const filename = target === 'mobile' ? 'broadcast_mobile.json' : 'broadcast.json';
                 const res = await fetch(`https://api.github.com/gists/${gistId}`, {
                     method: 'PATCH',
                     headers: { 'Authorization': `token ${token}`, 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ files: { 'broadcast.json': { content: JSON.stringify(payload, null, 2) } } })
+                    body: JSON.stringify({ files: { [filename]: { content: JSON.stringify(payload, null, 2) } } })
                 });
-                if(res.ok) alert("BROADCAST LIVE");
+                if(res.ok) alert(`${target.toUpperCase()} BROADCAST LIVE`);
                 else alert("GITHUB REJECTED PUSH");
             } catch(e) { alert("PUSH FAILED"); }
             finally {
-                btn.innerText = "PUSH GLOBAL BROADCAST";
+                btn.innerText = "PUSH BROADCAST LIVE";
                 btn.disabled = false;
             }
         }
