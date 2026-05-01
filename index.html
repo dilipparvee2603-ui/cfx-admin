@@ -52,7 +52,19 @@
         .nav-item.active::before { content: ''; position: absolute; left: -10px; top: 25%; height: 50%; width: 3px; background: var(--accent); border-radius: 0 4px 4px 0; box-shadow: 0 0 10px var(--accent); }
 
         /* --- MAIN DECK --- */
-        .main-deck { padding: 40px; overflow-y: auto; display: flex; flex-direction: column; }
+        .main-deck { 
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        
+        .deck-scroll-area {
+            flex: 1;
+            padding: 40px;
+            overflow-y: auto;
+        }
+
         .header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 40px; }
         .header h1 { font-size: 32px; font-weight: 900; letter-spacing: -1px; margin-bottom: 4px; }
         .header p { font-size: 14px; color: var(--text-dim); font-weight: 500; }
@@ -73,7 +85,7 @@
         .metric-value { font-size: 28px; font-weight: 900; color: #fff; }
 
         /* --- TABLE --- */
-        .table-panel { background: var(--surface); border: 1px solid var(--border); border-radius: 24px; overflow: hidden; box-shadow: var(--shadow); }
+        .table-panel { background: var(--surface); border: 1px solid var(--border); border-radius: 24px; overflow: hidden; box-shadow: var(--shadow); margin-bottom: 20px; }
         table { width: 100%; border-collapse: collapse; }
         th { padding: 18px 25px; background: rgba(255,255,255,0.02); text-align: left; font-size: 11px; font-weight: 800; color: var(--text-muted); letter-spacing: 1px; border-bottom: 1px solid var(--border); }
         td { padding: 20px 25px; border-bottom: 1px solid var(--border); font-size: 14px; }
@@ -82,6 +94,17 @@
 
         .key-text { font-family: var(--font-mono); font-weight: 600; color: #fff; }
         .status-badge { display: inline-flex; align-items: center; gap: 8px; font-weight: 800; font-size: 11px; padding: 6px 12px; border-radius: 20px; background: rgba(255,255,255,0.02); border: 1px solid var(--border); }
+
+        /* --- STICKY FOOTER --- */
+        .pagination { 
+            padding: 20px 40px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            background: var(--sidebar); 
+            border-top: 1px solid var(--border);
+            z-index: 50;
+        }
 
         /* --- BUTTONS --- */
         .btn { background: var(--surface-active); border: 1px solid var(--border-hover); color: #fff; padding: 12px 20px; border-radius: 12px; font-size: 12px; font-weight: 800; cursor: pointer; transition: var(--transition); display: inline-flex; align-items: center; gap: 10px; }
@@ -142,54 +165,58 @@
         </div>
 
         <div class="main-deck">
-            <div class="header">
-                <div>
-                    <h1 id="view-title">COMMAND CENTER</h1>
-                    <p>Production environment management interface.</p>
-                </div>
-                <div class="controls">
-                    <div class="search-container">
-                        <i data-lucide="search"></i>
-                        <input type="text" id="search" placeholder="Search licenses..." oninput="filterData()">
+            <div class="deck-scroll-area">
+                <div class="header">
+                    <div>
+                        <h1 id="view-title">COMMAND CENTER</h1>
+                        <p>Production environment management interface.</p>
                     </div>
-                    <select id="status-filter" onchange="filterData()">
-                        <option value="all">ALL STATUS</option>
-                        <option value="activated">ACTIVATED</option>
-                        <option value="available">AVAILABLE</option>
-                    </select>
-                    <button class="btn btn-accent" onclick="fetchData(true)"><i data-lucide="refresh-cw"></i> SYNC NOW</button>
+                    <div class="controls">
+                        <div class="search-container">
+                            <i data-lucide="search"></i>
+                            <input type="text" id="search" placeholder="Search licenses..." oninput="filterData()">
+                        </div>
+                        <select id="status-filter" onchange="filterData()">
+                            <option value="all">ALL STATUS</option>
+                            <option value="activated">ACTIVATED</option>
+                            <option value="available">AVAILABLE</option>
+                        </select>
+                        <button class="btn btn-accent" onclick="fetchData(true)"><i data-lucide="refresh-cw"></i> SYNC NOW</button>
+                    </div>
+                </div>
+
+                <div class="metrics-grid" id="metrics-grid">
+                    <div class="metric-card">
+                        <div class="metric-label">Total Pipeline</div>
+                        <div class="metric-value" id="stat-total-keys">0</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">Activated</div>
+                        <div class="metric-value" style="color: var(--blue)" id="stat-activated">0</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">Remaining</div>
+                        <div class="metric-value" style="color: var(--text-dim)" id="stat-remaining">0</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">Guest Trials</div>
+                        <div class="metric-value" style="color: var(--accent)" id="stat-active-trials">0</div>
+                    </div>
+                </div>
+
+                <div class="table-panel">
+                    <div id="table-container">
+                        <div class="loading">INITIALIZING COMMAND DECK...</div>
+                    </div>
                 </div>
             </div>
 
-            <div class="metrics-grid" id="metrics-grid">
-                <div class="metric-card">
-                    <div class="metric-label">Total Pipeline</div>
-                    <div class="metric-value" id="stat-total-keys">0</div>
-                </div>
-                <div class="metric-card">
-                    <div class="metric-label">Activated</div>
-                    <div class="metric-value" style="color: var(--blue)" id="stat-activated">0</div>
-                </div>
-                <div class="metric-card">
-                    <div class="metric-label">Remaining</div>
-                    <div class="metric-value" style="color: var(--text-dim)" id="stat-remaining">0</div>
-                </div>
-                <div class="metric-card">
-                    <div class="metric-label">Guest Trials</div>
-                    <div class="metric-value" style="color: var(--accent)" id="stat-active-trials">0</div>
-                </div>
-            </div>
-
-            <div class="table-panel">
-                <div id="table-container">
-                    <div class="loading">INITIALIZING COMMAND DECK...</div>
-                </div>
-                <div class="pagination" id="pagination-controls" style="display: none;">
-                    <div id="page-info">PAGE 1 OF 1</div>
-                    <div style="display: flex; gap: 10px;">
-                        <button class="btn btn-ghost" onclick="changePage(-1)"><i data-lucide="chevron-left"></i></button>
-                        <button class="btn btn-ghost" onclick="changePage(1)"><i data-lucide="chevron-right"></i></button>
-                    </div>
+            <!-- Sticky Pagination Footer -->
+            <div class="pagination" id="pagination-controls" style="display: none;">
+                <div id="page-info">PAGE 1 OF 1</div>
+                <div style="display: flex; gap: 10px;">
+                    <button class="btn btn-ghost" onclick="changePage(-1)"><i data-lucide="chevron-left"></i></button>
+                    <button class="btn btn-ghost" onclick="changePage(1)"><i data-lucide="chevron-right"></i></button>
                 </div>
             </div>
         </div>
