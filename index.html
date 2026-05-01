@@ -334,6 +334,9 @@
         <header>
             <div class="header-title" id="view-title">WINDOWS WORKSTATION LICENSES</div>
             <div class="header-actions">
+                <button class="btn" style="background: var(--blue); color: #fff; border: none; display: flex; align-items: center; gap: 8px; padding: 10px 20px;" onclick="fetchData(true)">
+                    <i data-lucide="refresh-cw" style="width: 14px; height: 14px;"></i> SYNC NOW
+                </button>
                 <select id="status-filter" class="search-box" style="width: 150px; background: var(--glass); border: 1px solid var(--border); padding: 10px; border-radius: 12px; font-weight: 700; color: #fff; outline: none; cursor: pointer;" onchange="filterData()">
                     <option value="all" style="background: var(--sidebar); color: #fff;">ALL STATUS</option>
                     <option value="activated" style="background: var(--sidebar); color: #fff;">ACTIVATED</option>
@@ -421,7 +424,9 @@
         let allTrials = [];
         let currentView = 'windows';
         let currentPage = 1;
-        const PAGE_SIZE = 20;        async function switchView(view) {
+        const PAGE_SIZE = 20;        let initialSyncDone = false;
+
+        async function switchView(view) {
             if (currentView === view && view !== 'vault') return; 
             currentView = view;
             currentPage = 1;
@@ -458,33 +463,44 @@
             const navItem = document.getElementById(`nav-${view}`);
             if(navItem) navItem.classList.add('active');
 
-            await fetchData();
+            // Only fetch if it's the first load OR if it's the Vault (Vault always needs refresh for safety)
+            if (!initialSyncDone || view === 'vault') {
+                await fetchData();
+            } else {
+                renderTable(); // Just re-render from cache
+            }
         }
 
-        async function fetchData() {
+        async function fetchData(force = false) {
             const container = document.getElementById('table-container');
             if (currentView === 'vault') return await fetchVault();
             if (currentView === 'broadcast') return renderTable();
 
-            // Prevent flickering
-            if (!container.innerHTML || container.innerHTML.includes('FAILED') || container.innerHTML.includes('CLOUD')) {
+            // Prevent flickering if data is already there
+            if (!allLicenses.length || force) {
                 container.innerHTML = '<div class="loading">SYNCHRONIZING WITH CLOUD...</div>';
             }
             
             try {
-                const endpoint = currentView === 'trials' ? 'trials' : 'licenses';
-                const res = await fetch(`${FB_URL}/${endpoint}.json?auth=${FB_SECRET}`);
-                if (!res.ok) throw new Error(res.status);
-                const data = await res.json();
+                // Fetch both at once for efficiency
+                const [lRes, tRes] = await Promise.all([
+                    fetch(`${FB_URL}/licenses.json?auth=${FB_SECRET}`),
+                    fetch(`${FB_URL}/trials.json?auth=${FB_SECRET}`)
+                ]);
+
+                if (!lRes.ok || !tRes.ok) throw new Error("Sync Failed");
                 
-                const list = data ? Object.keys(data).map(k => ({ id: k, ...data[k] })) : [];
-                if (currentView === 'trials') allTrials = list;
-                else allLicenses = list;
+                const lData = await lRes.json();
+                const tData = await tRes.json();
                 
+                allLicenses = lData ? Object.keys(lData).map(k => ({ id: k, ...lData[k] })) : [];
+                allTrials = tData ? Object.keys(tData).map(k => ({ id: k, ...tData[k] })) : [];
+                
+                initialSyncDone = true;
                 updateStats();
                 renderTable();
             } catch (err) {
-                container.innerHTML = `<div class="loading" style="color: var(--accent);">CLOUD CONNECTION LOST<br><span style="font-size: 10px; opacity: 0.5;">${currentView.toUpperCase()} HTTP ${err.message}</span></div>`;
+                container.innerHTML = `<div class="loading" style="color: var(--accent);">CLOUD CONNECTION LOST<br><span style="font-size: 10px; opacity: 0.5;">HTTP ERROR</span></div>`;
             }
         }
 
