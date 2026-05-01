@@ -393,6 +393,38 @@
             </div>
         </header>
 
+        <!-- MODAL FOR ADD/EDIT -->
+        <div id="license-modal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(10px); z-index: 2000; align-items: center; justify-content: center;">
+            <div style="background: var(--panel); width: 450px; padding: 40px; border-radius: 24px; border: 1px solid var(--border); box-shadow: 0 30px 60px rgba(0,0,0,0.5);">
+                <h2 id="modal-title" style="font-family: 'Outfit'; margin-bottom: 25px;">ADD LICENSE</h2>
+                <input type="hidden" id="edit-id">
+                
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; font-size: 10px; font-weight: 900; color: var(--text-dim); margin-bottom: 10px;">LICENSE KEY (ONLY FOR ADD)</label>
+                    <input type="text" id="modal-key" placeholder="Enter custom key or leave for auto-gen" style="background: var(--bg); border: 1px solid var(--border); padding: 15px; border-radius: 10px; color: #fff; width: 100%; outline: none;">
+                </div>
+                
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; font-size: 10px; font-weight: 900; color: var(--text-dim); margin-bottom: 10px;">USER EMAIL / ID</label>
+                    <input type="text" id="modal-email" placeholder="user@example.com" style="background: var(--bg); border: 1px solid var(--border); padding: 15px; border-radius: 10px; color: #fff; width: 100%; outline: none;">
+                </div>
+
+                <div style="margin-bottom: 30px;">
+                    <label style="display: block; font-size: 10px; font-weight: 900; color: var(--text-dim); margin-bottom: 10px;">LICENSE STATUS</label>
+                    <select id="modal-status" style="background: var(--bg); border: 1px solid var(--border); padding: 15px; border-radius: 10px; color: #fff; width: 100%; outline: none; cursor: pointer;">
+                        <option value="ACTIVE" style="background: var(--sidebar); color: #fff;">ACTIVE / ACTIVATED</option>
+                        <option value="EXPIRED" style="background: var(--sidebar); color: #fff;">EXPIRED</option>
+                        <option value="REVOKED" style="background: var(--sidebar); color: #fff;">REVOKED</option>
+                    </select>
+                </div>
+
+                <div style="display: flex; gap: 15px;">
+                    <button class="btn" style="flex: 1;" onclick="closeModal()">CANCEL</button>
+                    <button class="btn" id="modal-save-btn" style="flex: 1; background: var(--accent); color: #fff; border: none;" onclick="saveLicense()">SAVE LICENSE</button>
+                </div>
+            </div>
+        </div>
+
         <div class="content-area">
             <div class="metrics-grid" id="metrics-grid">
                 <div class="metric-card">
@@ -564,22 +596,37 @@
 
         function renderVault() {
             const container = document.getElementById('table-container');
+            const searchQuery = document.getElementById('vault-search')?.value.toLowerCase() || '';
+            
             let html = `
                 <div style="display: grid; grid-template-columns: 320px 1fr; gap: 25px; height: calc(100vh - 220px);">
                     <div style="background: var(--panel); border-radius: 24px; border: 1px solid var(--border); display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 15px 40px rgba(0,0,0,0.3);">
-                        <div style="padding: 25px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.01);">
-                            <div style="font-size: 10px; font-weight: 900; letter-spacing: 2px; color: var(--text-dim);">SAVED SNIPPETS</div>
-                            <button class="btn" style="padding: 8px 12px; font-size: 14px; background: var(--accent); color: #fff; border: none;" onclick="addSnippet()">+</button>
+                        <div style="padding: 25px; border-bottom: 1px solid var(--border); background: rgba(255,255,255,0.01);">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                                <div style="font-size: 10px; font-weight: 900; letter-spacing: 2px; color: var(--text-dim);">PASTEBIN VAULT</div>
+                                <button class="btn" style="padding: 8px 12px; font-size: 14px; background: var(--accent); color: #fff; border: none;" onclick="addSnippet()">NEW PASTE</button>
+                            </div>
+                            <input type="text" id="vault-search" placeholder="Search pastes..." oninput="renderVault()" style="width: 100%; background: var(--bg); border: 1px solid var(--border); padding: 10px; border-radius: 10px; color: #fff; font-size: 12px; outline: none;">
                         </div>
                         <div style="flex: 1; overflow-y: auto; padding: 15px;">
             `;
 
-            vaultSnippets.forEach((s, idx) => {
-                const isActive = activeSnippet === idx;
+            const filtered = vaultSnippets.filter(s => 
+                (s.title || '').toLowerCase().includes(searchQuery) || 
+                (s.content || '').toLowerCase().includes(searchQuery)
+            );
+
+            if (filtered.length === 0) {
+                html += `<div style="text-align: center; color: var(--text-dim); padding: 40px; font-size: 12px; opacity: 0.5;">NO PASTES MATCHING...</div>`;
+            }
+
+            filtered.forEach((s) => {
+                const realIdx = vaultSnippets.indexOf(s);
+                const isActive = activeSnippet === realIdx;
                 html += `
-                    <div onclick="editSnippet(${idx})" style="padding: 20px; border-radius: 16px; margin-bottom: 12px; cursor: pointer; background: ${isActive ? 'linear-gradient(90deg, rgba(255,45,85,0.08) 0%, rgba(255,45,85,0.02) 100%)' : 'rgba(255,255,255,0.01)'}; border: 1px solid ${isActive ? 'var(--accent)' : 'var(--border)'}; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); position: relative; overflow: hidden;">
-                        <div style="font-size: 14px; font-weight: 700; color: ${isActive ? '#fff' : 'var(--text)'}; margin-bottom: 6px;">${s.title || 'Untitled'}</div>
-                        <div style="font-size: 11px; color: var(--text-dim); font-family: 'JetBrains Mono', monospace; opacity: 0.7; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${s.content || '...'}</div>
+                    <div onclick="editSnippet(${realIdx})" style="padding: 20px; border-radius: 16px; margin-bottom: 12px; cursor: pointer; background: ${isActive ? 'linear-gradient(90deg, rgba(255,45,85,0.08) 0%, rgba(255,45,85,0.02) 100%)' : 'rgba(255,255,255,0.01)'}; border: 1px solid ${isActive ? 'var(--accent)' : 'var(--border)'}; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); position: relative; overflow: hidden;">
+                        <div style="font-size: 14px; font-weight: 700; color: ${isActive ? '#fff' : 'var(--text)'}; margin-bottom: 6px;">${s.title || 'Untitled Paste'}</div>
+                        <div style="font-size: 11px; color: var(--text-dim); font-family: 'JetBrains Mono', monospace; opacity: 0.7; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${s.content || 'No content...'}</div>
                         ${isActive ? '<div style="position: absolute; left: 0; top: 0; height: 100%; width: 4px; background: var(--accent); box-shadow: 2px 0 10px var(--accent);"></div>' : ''}
                     </div>
                 `;
@@ -587,56 +634,73 @@
 
             html += `</div></div><div id="snippet-editor" style="background: var(--panel); border-radius: 24px; border: 1px solid var(--border); padding: 35px; display: flex; flex-direction: column; box-shadow: 0 15px 40px rgba(0,0,0,0.3);">
                 <div style="text-align: center; padding: 100px 40px; color: var(--text-dim);">
-                    <i data-lucide="file-key" style="width: 56px; height: 56px; margin-bottom: 25px; opacity: 0.15; color: var(--accent);"></i>
-                    <h3 style="font-family: 'Outfit'; color: #fff; margin-bottom: 10px;">VAULT DECRYPTED</h3>
-                    <p style="font-size: 13px; max-width: 300px; margin: 0 auto; line-height: 1.6;">Select a snippet from the left to edit.</p>
+                    <i data-lucide="clipboard-copy" style="width: 56px; height: 56px; margin-bottom: 25px; opacity: 0.15; color: var(--accent);"></i>
+                    <h3 style="font-family: 'Outfit'; color: #fff; margin-bottom: 10px;">PASTEBIN READY</h3>
+                    <p style="font-size: 13px; max-width: 300px; margin: 0 auto; line-height: 1.6;">Select a paste from the left or create a new one to start storing data.</p>
                 </div>
             </div></div>`;
             container.innerHTML = html;
             lucide.createIcons();
+            if(document.getElementById('vault-search')) document.getElementById('vault-search').value = searchQuery;
         }
 
         function editSnippet(idx) {
             activeSnippet = idx;
             const s = vaultSnippets[idx];
             document.getElementById('snippet-editor').innerHTML = `
-                <input type="text" id="edit-title" value="${s.title}" style="background: transparent; border: none; color: #fff; font-size: 24px; font-family: 'Outfit'; font-weight: 900; margin-bottom: 20px; width: 100%; outline: none;" placeholder="Snippet Title">
-                <textarea id="edit-content" style="flex: 1; background: var(--bg); border: 1px solid var(--border); padding: 20px; border-radius: 15px; color: #fff; font-family: 'JetBrains Mono', monospace; font-size: 13px; outline: none; resize: none;" placeholder="Content...">${s.content}</textarea>
-                <div style="margin-top: 25px; display: flex; justify-content: flex-end; gap: 15px;">
-                    <button class="btn btn-danger" onclick="deleteSnippet(${idx})">DELETE</button>
-                    <button class="btn" style="background: var(--accent); color: #fff; border: none;" onclick="saveVault()">SAVE VAULT</button>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <input type="text" id="edit-title" value="${s.title}" style="background: transparent; border: none; color: #fff; font-size: 24px; font-family: 'Outfit'; font-weight: 900; width: 70%; outline: none;" placeholder="Paste Title">
+                    <button class="btn" style="padding: 10px 20px; font-size: 11px; display: flex; align-items: center; gap: 8px;" onclick="copyPaste()">
+                        <i data-lucide="copy" style="width: 14px; height: 14px;"></i> COPY PASTE
+                    </button>
+                </div>
+                <textarea id="edit-content" style="flex: 1; background: var(--bg); border: 1px solid var(--border); padding: 25px; border-radius: 20px; color: #fff; font-family: 'JetBrains Mono', monospace; font-size: 14px; line-height: 1.6; outline: none; resize: none;" placeholder="Paste content here...">${s.content}</textarea>
+                <div style="margin-top: 25px; display: flex; justify-content: space-between; align-items: center;">
+                    <div id="vault-save-status" style="font-size: 11px; color: var(--text-dim); font-weight: 800;">READY TO SAVE</div>
+                    <div style="display: flex; gap: 15px;">
+                        <button class="btn btn-danger" onclick="deleteSnippet(${idx})">DELETE</button>
+                        <button class="btn" style="background: var(--accent); color: #fff; border: none; padding: 12px 30px;" onclick="saveVault()">SAVE & SYNC</button>
+                    </div>
                 </div>
             `;
             renderVault();
         }
 
-        function addSnippet() {
-            vaultSnippets.unshift({ title: 'New Snippet', content: '' });
-            editSnippet(0);
-        }
-
-        async function deleteSnippet(idx) {
-            if(!confirm("DELETE PERMANENTLY?")) return;
-            vaultSnippets.splice(idx, 1);
-            activeSnippet = null;
-            await saveVault();
+        function copyPaste() {
+            const content = document.getElementById('edit-content').value;
+            navigator.clipboard.writeText(content);
+            const btn = event.currentTarget;
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i data-lucide="check" style="width: 14px; height: 14px;"></i> COPIED!';
+            lucide.createIcons();
+            setTimeout(() => { btn.innerHTML = originalText; lucide.createIcons(); }, 2000);
         }
 
         async function saveVault() {
+            const status = document.getElementById('vault-save-status');
             const token = document.getElementById('bc-token').value;
             const vaultGistId = localStorage.getItem('cfx_vault_gistid');
+            
             if(activeSnippet !== null) {
                 vaultSnippets[activeSnippet].title = document.getElementById('edit-title').value;
                 vaultSnippets[activeSnippet].content = document.getElementById('edit-content').value;
             }
+
+            if(status) { status.innerText = "SYNCING TO CLOUD..."; status.style.color = "var(--blue)"; }
+
             try {
-                await fetch(`https://api.github.com/gists/${vaultGistId}`, {
+                const res = await fetch(`https://api.github.com/gists/${vaultGistId}`, {
                     method: 'PATCH',
                     headers: { 'Authorization': `token ${token}`, 'Content-Type': 'application/json' },
                     body: JSON.stringify({ files: { 'vault.json': { content: JSON.stringify(vaultSnippets, null, 2) } } })
                 });
-                renderVault();
-            } catch (e) { alert("SAVE FAILED"); }
+                if(res.ok) {
+                    if(status) { status.innerText = "PASTE SYNCED SUCCESSFUL"; status.style.color = "#10b981"; }
+                    renderVault();
+                } else { throw new Error(); }
+            } catch (e) { 
+                if(status) { status.innerText = "SYNC FAILED"; status.style.color = "var(--accent)"; }
+            }
         }
 
         async function revokeLicense(id) {
