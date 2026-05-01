@@ -506,7 +506,7 @@
         let activeSnippet = null;
 
         async function fetchVault() {
-            const token = document.getElementById('bc-token').value;
+            const token = localStorage.getItem('cfx_github_token');
             const vaultGistId = localStorage.getItem('cfx_vault_gistid');
             const container = document.getElementById('table-container');
             
@@ -644,7 +644,7 @@
 
         async function saveVault() {
             const status = document.getElementById('vault-save-status');
-            const token = document.getElementById('bc-token').value;
+            const token = localStorage.getItem('cfx_github_token');
             const vaultGistId = localStorage.getItem('cfx_vault_gistid');
             
             if(activeSnippet !== null) {
