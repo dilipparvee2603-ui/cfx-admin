@@ -158,6 +158,8 @@
         .btn-accent { background: var(--accent); border-color: transparent; box-shadow: 0 4px 15px var(--accent-muted); }
         .btn-danger { background: rgba(255, 45, 85, 0.05); border-color: rgba(255, 45, 85, 0.2); color: var(--accent); }
         .btn-ghost { background: transparent; border-color: transparent; color: var(--text-dim); }
+        .btn-gen { background: var(--accent-muted); border: 1px solid var(--accent); color: var(--accent); padding: 10px 20px; border-radius: 12px; font-weight: 900; font-size: 10px; letter-spacing: 1.5px; cursor: pointer; transition: var(--transition); }
+        .btn-gen:hover { background: var(--accent); color: #fff; transform: translateY(-2px); box-shadow: 0 5px 15px var(--accent-muted); }
 
         /* --- RESPONSIVE BREAKPOINTS --- */
         @media (max-width: 1024px) {
@@ -267,6 +269,7 @@
                             <option value="activated">ACTIVATED</option>
                             <option value="available">AVAILABLE</option>
                         </select>
+                        <button id="master-gen-btn" class="btn-gen" onclick="generateNewKey()" style="display:none;">+ GENERATE KEY</button>
                         <button class="btn btn-accent" onclick="fetchData(true)"><i data-lucide="refresh-cw"></i> SYNC NOW</button>
                     </div>
                 </div>
@@ -365,6 +368,7 @@
             metrics.style.display = (['windows', 'android', 'trials'].includes(view)) ? 'grid' : 'none';
             filter.style.display = (['windows', 'android'].includes(view)) ? 'block' : 'none';
             search.style.display = (['windows', 'android', 'trials'].includes(view)) ? 'block' : 'none';
+            document.getElementById('master-gen-btn').style.display = (['windows', 'android'].includes(view)) ? 'block' : 'none';
             
             // Explicitly hide pagination on tab switch; renderTable will show it if needed
             pagination.style.display = 'none';
@@ -467,6 +471,34 @@
         async function deleteLicense(id) { if(confirm("DELETE?")) { await fetch(`${FB_URL}/licenses/${id}.json?auth=${FB_SECRET}`, { method: 'DELETE' }); fetchData(true); } }
         async function wipeTrial(id) { if(confirm("WIPE?")) { await fetch(`${FB_URL}/trials/${id}.json?auth=${FB_SECRET}`, { method: 'DELETE' }); fetchData(true); } }
         async function flushAllKeys() { if(prompt("Type 'FLUSH':") === 'FLUSH') { await fetch(`${FB_URL}/licenses.json?auth=${FB_SECRET}`, { method: 'DELETE' }); fetchData(true); } }
+
+        async function generateNewKey() {
+            const type = currentView;
+            if(!confirm(`GENERATE NEW ${type.toUpperCase()} PRODUCTION KEY?`)) return;
+            
+            const hex = () => Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1).toUpperCase();
+            const key = `CFX-${hex()}-${hex()}-${hex()}-${hex()}`;
+            const keyId = key.replace(/-/g, '_');
+            
+            const payload = {
+                key_display: key,
+                status: "unused",
+                type: type,
+                hwid: "UNLINKED",
+                timestamp: Math.floor(Date.now() / 1000)
+            };
+            
+            try {
+                const res = await fetch(`${FB_URL}/licenses/${keyId}.json?auth=${FB_SECRET}`, {
+                    method: 'PUT',
+                    body: JSON.stringify(payload)
+                });
+                if(res.ok) {
+                    alert(`KEY GENERATED: ${key}`);
+                    fetchData(true);
+                }
+            } catch(e) { alert("GENERATION FAILED"); }
+        }
 
         // --- VAULT ---
         let vaultSnippets = []; let activeSnippetId = null;
