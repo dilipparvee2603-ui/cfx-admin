@@ -511,8 +511,11 @@
             document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
             document.getElementById(`nav-${view}`).classList.add('active');
 
-            document.getElementById('view-title').innerText = titles[view];
-            renderTable();
+            if (view === 'vault' || view === 'broadcast') {
+                fetchData();
+            } else {
+                fetchData().then(() => renderTable());
+            }
         }
 
         async function revokeLicense(id) {
