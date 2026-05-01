@@ -421,37 +421,8 @@
         let allTrials = [];
         let currentView = 'windows';
         let currentPage = 1;
-        const PAGE_SIZE = 20;
-
-        async function fetchData() {
-            try {
-                if (currentView === 'vault') return await fetchVault();
-                if (currentView === 'broadcast') return renderTable();
-                
-                const lResp = await fetch(`${FB_URL}/licenses.json?auth=${FB_SECRET}`);
-                if (!lResp.ok) throw new Error(`Licenses HTTP ${lResp.status}`);
-                const lData = await lResp.json();
-                
-                const tResp = await fetch(`${FB_URL}/trials.json?auth=${FB_SECRET}`);
-                if (!tResp.ok) throw new Error(`Trials HTTP ${tResp.status}`);
-                const tData = await tResp.json();
-
-                allLicenses = lData ? Object.keys(lData).map(k => ({ id: k, ...lData[k] })) : [];
-                allTrials = tData ? Object.keys(tData).map(k => ({ id: k, ...tData[k] })) : [];
-
-                updateStats();
-                renderTable();
-            } catch (err) {
-                console.error("Fetch Data Error:", err);
-                document.getElementById('table-container').innerHTML = `
-                    <div class="loading" style="color: var(--accent); letter-spacing: 2px;">
-                        CLOUD CONNECTION LOST<br>
-                        <span style="font-size: 10px; opacity: 0.5;">${err.message}</span>
-                    </div>`;
-            }
-        }
-
-        function switchView(view) {
+        const PAGE_SIZE = 20;        async function switchView(view) {
+            if (currentView === view && view !== 'vault') return; 
             currentView = view;
             currentPage = 1;
             
@@ -465,7 +436,7 @@
             const titleEl = document.getElementById('view-title');
             const pagination = document.getElementById('pagination-controls');
 
-            // UI Reset
+            // Visibility Toggles
             filter.style.display = 'none';
             metrics.style.display = 'none';
             search.style.display = 'none';
@@ -484,9 +455,37 @@
             }
 
             document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
-            document.getElementById(`nav-${view}`).classList.add('active');
+            const navItem = document.getElementById(`nav-${view}`);
+            if(navItem) navItem.classList.add('active');
 
-            fetchData();
+            await fetchData();
+        }
+
+        async function fetchData() {
+            const container = document.getElementById('table-container');
+            if (currentView === 'vault') return await fetchVault();
+            if (currentView === 'broadcast') return renderTable();
+
+            // Prevent flickering
+            if (!container.innerHTML || container.innerHTML.includes('FAILED') || container.innerHTML.includes('CLOUD')) {
+                container.innerHTML = '<div class="loading">SYNCHRONIZING WITH CLOUD...</div>';
+            }
+            
+            try {
+                const endpoint = currentView === 'trials' ? 'trials' : 'licenses';
+                const res = await fetch(`${FB_URL}/${endpoint}.json?auth=${FB_SECRET}`);
+                if (!res.ok) throw new Error(res.status);
+                const data = await res.json();
+                
+                const list = data ? Object.keys(data).map(k => ({ id: k, ...data[k] })) : [];
+                if (currentView === 'trials') allTrials = list;
+                else allLicenses = list;
+                
+                updateStats();
+                renderTable();
+            } catch (err) {
+                container.innerHTML = `<div class="loading" style="color: var(--accent);">CLOUD CONNECTION LOST<br><span style="font-size: 10px; opacity: 0.5;">${currentView.toUpperCase()} HTTP ${err.message}</span></div>`;
+            }
         }
 
         function updateStats() {
