@@ -703,9 +703,14 @@
                 filtered.map(s => {
                     const isActive = activeSnippetId === s.id;
                     return `
-                        <div onclick="editSnippet('${s.id}')" style="padding: 20px; border-radius: 16px; margin-bottom: 12px; cursor: pointer; background: ${isActive ? 'linear-gradient(90deg, rgba(255,45,85,0.08) 0%, rgba(255,45,85,0.02) 100%)' : 'rgba(255,255,255,0.01)'}; border: 1px solid ${isActive ? 'var(--accent)' : 'var(--border)'}; transition: all 0.3s; position: relative; overflow: hidden;">
-                            <div style="font-size: 14px; font-weight: 700; color: ${isActive ? '#fff' : 'var(--text)'}; margin-bottom: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${s.title || 'Untitled Paste'}</div>
-                            <div style="font-size: 11px; color: var(--text-dim); font-family: 'JetBrains Mono', monospace; opacity: 0.7; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${s.content || '...'}</div>
+                        <div onclick="editSnippet('${s.id}')" style="padding: 20px; border-radius: 16px; margin-bottom: 12px; cursor: pointer; background: ${isActive ? 'linear-gradient(90deg, rgba(255,45,85,0.08) 0%, rgba(255,45,85,0.02) 100%)' : 'rgba(255,255,255,0.01)'}; border: 1px solid ${isActive ? 'var(--accent)' : 'var(--border)'}; transition: all 0.3s; position: relative; overflow: hidden; display: flex; align-items: center; justify-content: space-between; group;">
+                            <div style="flex: 1; min-width: 0;">
+                                <div style="font-size: 14px; font-weight: 700; color: ${isActive ? '#fff' : 'var(--text)'}; margin-bottom: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${s.title || 'Untitled Paste'}</div>
+                                <div style="font-size: 11px; color: var(--text-dim); font-family: 'JetBrains Mono', monospace; opacity: 0.7; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${s.content || '...'}</div>
+                            </div>
+                            <button onclick="event.stopPropagation(); deleteSnippet('${s.id}')" style="background: transparent; border: none; color: var(--text-dim); padding: 8px; cursor: pointer; transition: 0.3s; opacity: 0.5; border-radius: 8px;" onmouseover="this.style.opacity='1'; this.style.color='var(--accent)'; this.style.background='rgba(255,45,85,0.1)'" onmouseout="this.style.opacity='0.5'; this.style.color='var(--text-dim)'; this.style.background='transparent'">
+                                <i data-lucide="trash-2" style="width: 14px; height: 14px;"></i>
+                            </button>
                             ${isActive ? '<div style="position: absolute; left: 0; top: 0; height: 100%; width: 4px; background: var(--accent);"></div>' : ''}
                         </div>
                     `;
