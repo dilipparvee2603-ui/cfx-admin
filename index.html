@@ -480,21 +480,37 @@
             }
 
             const filter = document.getElementById('status-filter');
-            if (view === 'windows' || view === 'android') {
-                filter.style.display = 'block';
-            } else {
+            const metrics = document.getElementById('metrics-grid');
+            const search = document.querySelector('.search-container');
+            const titleEl = document.getElementById('view-title');
+
+            if (view === 'windows' || view === 'android' || view === 'trials') {
+                filter.style.display = (view === 'trials') ? 'none' : 'block';
+                metrics.style.display = 'grid';
+                search.style.display = 'flex';
+                titleEl.innerText = view.toUpperCase() + (view === 'trials' ? ' GUEST TRIALS' : ' WORKSTATION LICENSES');
+            } else if (view === 'broadcast') {
                 filter.style.display = 'none';
+                metrics.style.display = 'none';
+                search.style.display = 'none';
+                titleEl.innerText = 'GLOBAL BROADCAST HUB';
+            } else if (view === 'vault') {
+                filter.style.display = 'none';
+                metrics.style.display = 'none';
+                search.style.display = 'none';
+                titleEl.innerText = 'MASTER VAULT SNIPPETS';
+            }
+
+            const pagination = document.getElementById('pagination-controls');
+            if (view === 'windows' || view === 'android' || view === 'trials') {
+                pagination.style.display = 'flex';
+            } else {
+                pagination.style.display = 'none';
             }
 
             document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
             document.getElementById(`nav-${view}`).classList.add('active');
 
-            const titles = {
-                'windows': 'WINDOWS WORKSTATION LICENSES',
-                'android': 'ANDROID MOBILE LICENSES',
-                'trials': 'GUEST TRIAL MONITOR',
-                'broadcast': 'GLOBAL BROADCAST CENTER'
-            };
             document.getElementById('view-title').innerText = titles[view];
             renderTable();
         }
